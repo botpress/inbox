@@ -28,10 +28,10 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 7. Start the project with `npm run dev` and open it in the browser
 8. To figure out your bot id as a user, open any conversation and go to the developer console. You will see a `MESSAGES: [...]` log. Open the list and look for the first message sent by the bot. Grab its userId and paste it in the .env file. This will be used for sending messages and for differentiating the bot from other users.
 9. You're done!
-10. EXTRA - You could use this project on your localhost only (it works perfectly), or you could use host it for free on platform like Vercel, in which case you would need some form of authentication to restrict access.
+10. EXTRA - You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel, in which case you would need some form of authentication to restrict access.
 
 ## 👀 How it looks like
-![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/9a108c39-9d76-4787-be50-f86b8b21e21a)
+![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
 
 ## ⚙️ Libraries
 
