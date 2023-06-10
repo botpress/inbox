@@ -30,6 +30,9 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 9. You're done!
 10. EXTRA - You could use this project on your localhost only (it works perfectly), or you could use host it for free on platform like Vercel, in which case you would need some form of authentication to restrict access.
 
+## 👀 How it looks like
+![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/9a108c39-9d76-4787-be50-f86b8b21e21a)
+
 ## ⚙️ Libraries
 
 This project makes use of the following libraries:
@@ -44,12 +47,13 @@ This project makes use of the following libraries:
 
 ## ✅ To do
 
--   [] Create conversation
--   [] Sort conversations by last message
--   [] Show user name in the conversation list
--   [] Delete user
--   [] Better styling
--   [] Authentication
+-   [ ] Create conversation
+-   [ ] Sort conversations by last message
+-   [ ] Show user name in the conversation list
+-   [ ] Delete user
+-   [ ] Better styling
+-   [ ] Responsive style for mobile
+-   [ ] Authentication
 
 ## 👥 Contribution
 
