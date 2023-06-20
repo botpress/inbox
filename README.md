@@ -15,20 +15,21 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 1. Download this project folder
 2. Create a .env file in the root folder
-3. Add the following variables to the .env file
+3. Add the following variables to the .env file (We'll use real values in a bit)
  ```
    VITE_BOTPRESS_TOKEN=<your token>
    VITE_BOTPRESS_BOT_ID=<your bot id>
    VITE_BOTPRESS_WORKSPACE_ID=<your workspace id>
    VITE_BOTPRESS_BOT_ID_AS_USER=<your bot id as a user>
 ```
-4. Go to Botpress Dashboard, click your icon, and go to Personal Access Tokens
-5. Create a new token named 'inbox-dashboard' for example, and paste it in the .env file
+4. Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
+5. Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
 6. Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
 7. Start the project with `npm run dev` and open it in the browser
-8. To figure out your bot id as a user, open any conversation and go to the developer console. You will see a `MESSAGES: [...]` log. Open the list and look for the first message sent by the bot. Grab its userId and paste it in the .env file. This will be used for sending messages and for differentiating the bot from other users.
-9. You're done!
-10. EXTRA - You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel, in which case you would need some form of authentication to restrict access.
+8. Now to figure out your bot id as a user, open any conversation and go to the developer console. You will see a `MESSAGES: [...]` log. Open the list and look for the first message sent by the bot (a good clue is direction: "outgoing"). 
+9. Copy the userId from the message and paste it in the .env file of the project. This will be used for sending messages and for differentiating the bot from other users.
+10. You're done! ✅
+11. EXTRA - You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel, in which case you would need some form of authentication to restrict access.
 
 ## 👀 How it looks like
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
