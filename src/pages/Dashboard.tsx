@@ -114,7 +114,7 @@ export const Dashboard = () => {
 						/>
 					) : (
 						<div className="bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto mx-auto">
-							Selecione uma conversa
+							Select a conversation
 						</div>
 					)}
 				</div>
