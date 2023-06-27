@@ -25,7 +25,7 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 4. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
 5. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
 6. 🔗 Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
-7. 🚀 Start the project with `npm run dev` and open it in the browser
+7. 🚀 Start the project with `npm install && npm run dev` and open it in the browser
 8. 🤖 Now to figure out your bot id as a user, open any conversation and go to the developer console. You will see a `MESSAGES: [...]` log. Open the list and look for the first message sent by the bot (a good clue is direction: "outgoing"). 
 9. ✂️ Copy the userId from the message and paste it in the .env file of the project. This will be used for sending messages and for differentiating the bot from other users.
 10. ✅ You're done! 
