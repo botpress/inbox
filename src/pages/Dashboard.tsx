@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-
+import toast from 'react-hot-toast';
+import { botpressClient } from '../services/botpress';
 import { Conversation } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
-import { botpressClient } from '../services/botpress';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 
 export interface ConversationWithMessagesAndUsers extends Conversation {
 	// messages: Message[];
