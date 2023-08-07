@@ -4,6 +4,7 @@
 	"private": false,
 	"dependencies": {
 		"@botpress/client": "^0.1.1",
+		"@heroicons/react": "^2.0.18",
 		"@types/express": "^4.17.17",
 		"axios": "^1.4.0",
 		"date-fns": "^2.30.0",

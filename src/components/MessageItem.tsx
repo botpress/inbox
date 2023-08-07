@@ -1,6 +1,4 @@
-import { formatRelative } from 'date-fns';
 import { Message } from '@botpress/client';
-import { ptBR } from 'date-fns/locale';
 import {
 	ChoicePayloadBP,
 	QuickReplyPayloadBP,
@@ -69,10 +67,7 @@ export const MessageItem = ({ message, className }: MessageItemProps) => {
 				)}
 			</div>
 			<span className="text-sm text-gray-400">
-				{formatRelative(new Date(message.createdAt), new Date(), {
-					// change it to your locale
-					locale: ptBR,
-				})}
+				{new Date(message.createdAt).toLocaleString()}
 			</span>
 		</div>
 	);

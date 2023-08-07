@@ -143,6 +143,7 @@ export const ConversationDetails = ({
 
 	useEffect(() => {
 		isDefinedAndHasItems(messages) &&
+			!isDefinedAndHasItems(users) &&
 			(async () => {
 				setIsLoadingUsers(true);
 
@@ -196,7 +197,7 @@ export const ConversationDetails = ({
 
 	return (
 		<div className={`flex ${className}`}>
-			<div className="w-2/3 flex flex-col">
+			<div className="w-2/3 flex flex-col border-2 rounded-xl shadow-xl">
 				{isLoadingMessages ? (
 					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
 						Loading messages...
@@ -211,19 +212,22 @@ export const ConversationDetails = ({
 					/>
 				)}
 			</div>
-			{isLoadingUsers ? (
-				<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
-					Loading users' details...
-				</div>
-			) : (
-				<ConversationInfo
-					conversation={conversation}
-					users={users}
-					onDeleteConversation={handleDeleteConversation}
-					// onUpdateConversation={handleUpdateConversation}
-					className="w-1/3 flex"
-				/>
-			)}
+
+			<div className="w-1/3 border-2 rounded-xl overflow-y-auto shadow-xl">
+				{isLoadingUsers ? (
+					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
+						Loading users' details...
+					</div>
+				) : (
+					<ConversationInfo
+						conversation={conversation}
+						users={users}
+						onDeleteConversation={handleDeleteConversation}
+						// onUpdateConversation={handleUpdateConversation}
+						className="flex"
+					/>
+				)}
+			</div>
 		</div>
 	);
 };

@@ -1,6 +1,6 @@
 import defaultAvatarImg from '../assets/default-avatar.png';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
+import { formatRelative } from 'date-fns';
 import { User } from '@botpress/client';
 
 interface UserItemProps {
@@ -9,7 +9,7 @@ interface UserItemProps {
 
 export function UserItem({ user }: UserItemProps) {
 	return (
-		<div className="flex flex-col justify-between gap-2 rounded-xl p-4 w-full border-2">
+		<div className="flex flex-col justify-between gap-2 rounded-xl p-4 w-full border">
 			<div className="flex gap-2 items-center">
 				<img
 					src={defaultAvatarImg}
@@ -64,9 +64,8 @@ export function UserItem({ user }: UserItemProps) {
 			<p className="flex items-center gap-1">
 				<span className="text-sm text-gray-400">
 					Created at{' '}
-					{format(new Date(user.createdAt), 'dd/MM/yyyy HH:mm', {
-						// change it to your locale
-						locale: ptBR,
+					{formatRelative(new Date(), new Date(user.createdAt), {
+						locale: enUS,
 					})}
 				</span>
 			</p>

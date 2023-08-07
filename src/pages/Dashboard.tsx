@@ -1,9 +1,10 @@
-import toast from 'react-hot-toast';
-import { botpressClient } from '../services/botpress';
+import { useEffect, useState } from 'react';
+
 import { Conversation } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
-import { useEffect, useState } from 'react';
+import { botpressClient } from '../services/botpress';
+import toast from 'react-hot-toast';
 
 export interface ConversationWithMessagesAndUsers extends Conversation {
 	// messages: Message[];
@@ -84,10 +85,10 @@ export const Dashboard = () => {
 
 	return (
 		<div className="flex h-screen">
-			<div className="rounded-lg mx-auto max-w-7xl border-2 shadow-2xl flex w-full my-24 divide-x-4">
+			<div className="mx-auto max-w-7xl gap-5 flex w-full my-24">
 				<ConversationList
 					conversations={conversations}
-					className="w-1/4"
+					className="w-1/4 border-2 rounded-xl shadow-xl"
 					selectedConversationId={selectedConversation?.id}
 					onSelectConversation={(conversation: Conversation) =>
 						setSelectedConversation(conversation)
@@ -97,11 +98,11 @@ export const Dashboard = () => {
 					// }
 				/>
 
-				<div className="w-3/4 flex">
+				<div className="w-3/4 flex rounded-xl">
 					{selectedConversation ? (
 						<ConversationDetails
 							conversation={selectedConversation}
-							className="divide-x-4 w-full"
+							className="w-full gap-5"
 							onDeleteConversation={(conversationId: string) => {
 								setSelectedConversation(undefined);
 								setConversations(
@@ -114,7 +115,7 @@ export const Dashboard = () => {
 						/>
 					) : (
 						<div className="bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto mx-auto">
-							Selecione uma conversa
+							Select a conversation to see details...
 						</div>
 					)}
 				</div>

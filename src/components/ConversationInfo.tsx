@@ -1,5 +1,5 @@
 import { Conversation, User } from '@botpress/client';
-import { format } from 'date-fns';
+import { formatRelative } from 'date-fns';
 import { UserItem } from './UserItem';
 
 interface ConversationInfoProps {
@@ -79,7 +79,7 @@ export const ConversationInfo = ({
 					</div>
 				) : (
 					<div className="flex flex-col justify-between text-gray-400 gap-2 rounded-xl p-4 w-full border-2">
-						No user info
+						No users info
 					</div>
 				)}
 			</div>
@@ -106,9 +106,9 @@ export const ConversationInfo = ({
 					<span>📅</span>
 					<span className="text-gray-400">
 						Started at{' '}
-						{format(
-							new Date(conversation.createdAt),
-							'dd/MM/yyyy HH:mm'
+						{formatRelative(
+							new Date(),
+							new Date(conversation.createdAt)
 						)}
 					</span>
 				</p>
@@ -116,9 +116,9 @@ export const ConversationInfo = ({
 					<span>📝</span>
 					<span className="text-gray-400">
 						Updated at{' '}
-						{format(
-							new Date(conversation.updatedAt),
-							'dd/MM/yyyy HH:mm'
+						{formatRelative(
+							new Date(),
+							new Date(conversation.updatedAt)
 						)}
 					</span>
 				</p>
