@@ -1,3 +1,5 @@
+import { Client } from '@botpress/client';
+
 export interface TextPayloadBP {
 	text: string;
 	metadata?: string;
@@ -15,3 +17,9 @@ export interface QuickReplyPayloadBP {
 		value: string;
 	};
 }
+
+export type CustomClientBP = (
+	token: string,
+	workspaceId: string,
+	botId: string
+) => Client;

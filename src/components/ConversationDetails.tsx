@@ -1,20 +1,20 @@
 import toast from 'react-hot-toast';
-import { botpressClient } from '../services/botpress';
-import { Conversation, Message } from '@botpress/client';
+import { Client, Conversation, Message, User } from '@botpress/client';
 import { ConversationInfo } from './ConversationInfo';
 import { isDefinedAndHasItems } from '../utils';
 import { MessageList } from './MessageList';
 import { useEffect, useState } from 'react';
-import { User } from '@botpress/client/dist/gen';
 
 interface ConversationDetailsProps {
 	conversation: Conversation;
 	onDeleteConversation: (conversationId: string) => void;
+	botpressClient: Client;
 	className?: string;
 }
 
 export const ConversationDetails = ({
 	conversation,
+	botpressClient,
 	onDeleteConversation,
 	className,
 }: ConversationDetailsProps) => {

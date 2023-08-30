@@ -1,20 +1,21 @@
-import { CreateMessageBody, Message } from '@botpress/client/dist/gen';
-import { useEffect, useRef, useState } from 'react';
-
-import { MessageItem } from './MessageItem';
-import { botpressClient } from '../services/botpress';
-import { isDefinedAndHasItems } from '../utils';
 import toast from 'react-hot-toast';
+import { Client } from '@botpress/client';
+import { CreateMessageBody, Message } from '@botpress/client/dist/gen';
+import { isDefinedAndHasItems } from '../utils';
+import { MessageItem } from './MessageItem';
+import { useEffect, useRef, useState } from 'react';
 
 interface MessageListProps {
 	messages: Message[];
 	conversationId: string;
+	botpressClient: Client;
 	loadOlderMessages?: () => void;
 }
 
 export const MessageList = ({
 	messages,
 	conversationId,
+	botpressClient,
 	loadOlderMessages,
 }: MessageListProps) => {
 	const [messageList, setMessageList] = useState<Message[]>([]);
@@ -66,7 +67,7 @@ export const MessageList = ({
 	}
 
 	useEffect(() => {
-		console.log("MESSAGES", messages)
+		console.log('MESSAGES', messages);
 		setMessageList(messages);
 	}, [messages]);
 

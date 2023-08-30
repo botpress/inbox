@@ -1,4 +1,4 @@
-import { Conversation } from '@botpress/client';
+import { Client, Conversation } from '@botpress/client';
 import { ConversationItem } from './ConversationItem';
 import { ConversationWithMessagesAndUsers } from '../pages/Dashboard';
 
@@ -7,6 +7,7 @@ interface ConversationListProps {
 	selectedConversationId?: string;
 	onSelectConversation: (conversation: Conversation) => void;
 	className?: string;
+	botpressClient: Client;
 	// loadOlderConversations?: () => void;
 }
 
