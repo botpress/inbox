@@ -1,8 +1,9 @@
 import toast from 'react-hot-toast';
-import { botpressClient as bpClientService } from '../services/botpress';
-import { Client, Conversation } from '@botpress/client';
+import { Conversation } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
+import { decrypt, encrypt } from '../services/crypto';
+import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
 
 export interface ConversationWithMessagesAndUsers extends Conversation {
@@ -24,25 +25,54 @@ export const Dashboard = () => {
 		ConversationWithMessagesAndUsers[]
 	>([]);
 
-	const [botpressClient, setBotpressClient] = useState<Client | undefined>();
+	const { botpressClient, createClient } = useBotpressClient();
 
 	useEffect(() => {
 		if (!botpressClient) {
-			toast('Please inform your credentials');
+			try {
+				const credentialsEncrypted = localStorage.getItem(
+					'bp-inbox-credentials'
+				);
 
-			const token = prompt('Botpress Token') || undefined;
-			const workspaceId = prompt('Botpress Workspace ID') || undefined;
-			const botId = prompt('Botpress Bot ID') || undefined;
+				// if there are credentials saved in the Local Storage, decrypts and creates the client
+				if (credentialsEncrypted) {
+					const decryptedCredentialsString =
+						decrypt(credentialsEncrypted);
 
-			if (token && workspaceId && botId) {
-				const client = bpClientService(token, workspaceId, botId);
+					if (!decryptedCredentialsString) {
+						throw new Error('Invalid credentials');
+					}
 
-				if (!client) {
-					toast.error('Invalid credentials');
-					return;
+					const credentials = JSON.parse(decryptedCredentialsString);
+
+					if (!credentials) {
+						throw new Error('Invalid credentials');
+					}
+
+					if (
+						!credentials.token ||
+						!credentials.workspaceId ||
+						!credentials.botId
+					) {
+						throw new Error('Invalid credentials');
+					}
+
+					createClient(
+						credentials.token,
+						credentials.workspaceId,
+						credentials.botId
+					);
+				} else {
+					// removes the credentials from the Local Storage
+					localStorage.removeItem('bp-inbox-credentials');
+
+					// if there are no credentials saved, prompts the user to inform them
+					promptCredentials();
 				}
-
-				setBotpressClient(bpClientService(token, workspaceId, botId));
+			} catch (error: any) {
+				toast("Couldn't start the app");
+				toast.error(error.message);
+				promptCredentials();
 			}
 		} else {
 			(async () => {
@@ -111,6 +141,28 @@ export const Dashboard = () => {
 		}
 	}, [botpressClient]);
 
+	function promptCredentials() {
+		toast('Please inform your credentials');
+
+		const token = prompt('Botpress Token') || undefined;
+		const workspaceId = prompt('Botpress Workspace ID') || undefined;
+		const botId = prompt('Botpress Bot ID') || undefined;
+
+		if (token && workspaceId && botId) {
+			try {
+				createClient(token, workspaceId, botId);
+
+				// saves the encrypted credentials to storage
+				localStorage.setItem(
+					'bp-inbox-credentials',
+					encrypt(JSON.stringify({ token, workspaceId, botId }))
+				);
+			} catch (error) {
+				toast.error('Invalid credentials');
+			}
+		}
+	}
+
 	return botpressClient ? (
 		<div className="flex h-screen">
 			<div className="mx-auto max-w-7xl gap-5 flex w-full my-24">
@@ -131,7 +183,6 @@ export const Dashboard = () => {
 					{selectedConversation ? (
 						<ConversationDetails
 							conversation={selectedConversation}
-							botpressClient={botpressClient}
 							className="w-full gap-5"
 							onDeleteConversation={(conversationId: string) => {
 								setSelectedConversation(undefined);

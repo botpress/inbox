@@ -1,20 +1,19 @@
 import toast from 'react-hot-toast';
-import { Client, Conversation, Message, User } from '@botpress/client';
+import { Conversation, Message, User } from '@botpress/client';
 import { ConversationInfo } from './ConversationInfo';
 import { isDefinedAndHasItems } from '../utils';
 import { MessageList } from './MessageList';
+import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
 
 interface ConversationDetailsProps {
 	conversation: Conversation;
 	onDeleteConversation: (conversationId: string) => void;
-	botpressClient: Client;
 	className?: string;
 }
 
 export const ConversationDetails = ({
 	conversation,
-	botpressClient,
 	onDeleteConversation,
 	className,
 }: ConversationDetailsProps) => {
@@ -25,9 +24,11 @@ export const ConversationDetails = ({
 	const [users, setUsers] = useState<User[]>([]);
 	const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
+	const { botpressClient } = useBotpressClient();
+
 	async function loadOlderMessages() {
 		try {
-			if (!nextToken) {
+			if (!nextToken || !botpressClient) {
 				return;
 			}
 
@@ -55,7 +56,7 @@ export const ConversationDetails = ({
 		if (confirm('Are you sure you want to delete this conversation?')) {
 			try {
 				const deleteConversation =
-					await botpressClient.deleteConversation({
+					await botpressClient?.deleteConversation({
 						id: conversationId,
 					});
 
@@ -121,6 +122,10 @@ export const ConversationDetails = ({
 		setMessages([]); // reset messages
 		setUsers([]); // reset users
 
+		if (!botpressClient) {
+			return;
+		}
+
 		(async () => {
 			setIsLoadingMessages(true);
 
@@ -165,7 +170,7 @@ export const ConversationDetails = ({
 					userIds.forEach(async (userId, index) => {
 						try {
 							const showUserRequest =
-								await botpressClient.getUser({
+								await botpressClient?.getUser({
 									id: userId,
 								});
 

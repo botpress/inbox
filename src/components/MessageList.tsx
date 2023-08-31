@@ -1,21 +1,19 @@
 import toast from 'react-hot-toast';
-import { Client } from '@botpress/client';
 import { CreateMessageBody, Message } from '@botpress/client/dist/gen';
 import { isDefinedAndHasItems } from '../utils';
 import { MessageItem } from './MessageItem';
+import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useRef, useState } from 'react';
 
 interface MessageListProps {
 	messages: Message[];
 	conversationId: string;
-	botpressClient: Client;
 	loadOlderMessages?: () => void;
 }
 
 export const MessageList = ({
 	messages,
 	conversationId,
-	botpressClient,
 	loadOlderMessages,
 }: MessageListProps) => {
 	const [messageList, setMessageList] = useState<Message[]>([]);
@@ -24,6 +22,8 @@ export const MessageList = ({
 		useState<boolean>(false);
 
 	const messageListEndRef = useRef<HTMLDivElement>(null);
+
+	const { botpressClient } = useBotpressClient();
 
 	function handleScrollToEnd() {
 		if (messageListEndRef.current) {
@@ -43,7 +43,7 @@ export const MessageList = ({
 				tags: {},
 			};
 
-			const sendMessage = await botpressClient.createMessage(
+			const sendMessage = await botpressClient?.createMessage(
 				sendMessageBody
 			);
 
