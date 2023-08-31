@@ -15,8 +15,8 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 1. ⬇️ Download this project folder
 2. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
-3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
-4. 🔗 Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
+3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in app
+4. 🔗 Still in the dashboard, open your bot and copy and paste the URL in the app
 5. 🚀 Start the project with `npm install && npm run start` and open it in the browser
 6. ✅ You're done!
 
