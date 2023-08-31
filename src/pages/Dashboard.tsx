@@ -6,24 +6,13 @@ import { decrypt, encrypt } from '../services/crypto';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
 
-export interface ConversationWithMessagesAndUsers extends Conversation {
-	// messages: Message[];
-	// users: User[];
-}
-
 export const Dashboard = () => {
-	// const [botpressToken, setBotpressToken] = useState<string | undefined>();
-	// const [botpressWorkspaceId, setBotpressWorkspaceId] = useState<
-	// 	string | undefined
-	// >();
-	// const [botpressBotId, setBotpressBotId] = useState<string | undefined>();
-
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation>();
 
-	const [conversations, setConversations] = useState<
-		ConversationWithMessagesAndUsers[]
-	>([]);
+	const [conversations, setConversations] = useState<Conversation[]>([]);
+	const [nextConversationsToken, setNextConversationsToken] =
+		useState<string>();
 
 	const { botpressClient, createClient } = useBotpressClient();
 
@@ -75,63 +64,53 @@ export const Dashboard = () => {
 				promptCredentials();
 			}
 		} else {
+			// if there is a client, loads the conversations
 			(async () => {
 				try {
-					const allConversations: ConversationWithMessagesAndUsers[] =
-						[];
-					let nextTokenConversations: string | undefined;
+					const allConversations: Conversation[] = [];
 
-					do {
-						const listConversations =
-							await botpressClient.listConversations({
-								nextToken: nextTokenConversations,
-							});
+					const listConversations =
+						await botpressClient.listConversations({});
 
-						const conversationsWithData: ConversationWithMessagesAndUsers[] =
-							[];
+					listConversations.conversations.forEach(
+						async (currentConversation) => {
+							// let messages: Message[] = [];
+							// let nextTokenMessages: string | undefined;
 
-						listConversations.conversations.forEach(
-							async (conversation) => {
-								// let messages: Message[] = [];
-								// let nextTokenMessages: string | undefined;
+							// let users: User[] = [];
+							// let nextTokenUsers: string | undefined;
 
-								// let users: User[] = [];
-								// let nextTokenUsers: string | undefined;
+							// do {
+							// 	const listMessages =
+							// 		await botpressClient.listMessages({
+							// 			conversationId: conversation.id,
+							// 		});
 
-								// do {
-								// 	const listMessages =
-								// 		await botpressClient.listMessages({
-								// 			conversationId: conversation.id,
-								// 		});
+							// 	messages.push(...listMessages.messages);
+							// 	nextTokenMessages = listMessages.meta.nextToken;
+							// } while (nextTokenMessages);
 
-								// 	messages.push(...listMessages.messages);
-								// 	nextTokenMessages = listMessages.meta.nextToken;
-								// } while (nextTokenMessages);
+							// do {
+							// 	const listUsers =
+							// 		await botpressClient.listUsers({
+							// 			conversationId: conversation.id,
+							// 		});
 
-								// do {
-								// 	const listUsers =
-								// 		await botpressClient.listUsers({
-								// 			conversationId: conversation.id,
-								// 		});
+							// 	users.push(...listUsers.users);
+							// 	nextTokenUsers = listUsers.meta.nextToken;
+							// } while (nextTokenUsers);
 
-								// 	users.push(...listUsers.users);
-								// 	nextTokenUsers = listUsers.meta.nextToken;
-								// } while (nextTokenUsers);
+							allConversations.push(currentConversation);
+						}
+					);
 
-								conversationsWithData.push({
-									...conversation,
-									// messages,
-									// users,
-								});
-							}
-						);
+					setNextConversationsToken(
+						listConversations.meta.nextToken || undefined
+					);
 
-						allConversations.push(...conversationsWithData);
-						nextTokenConversations =
-							listConversations.meta.nextToken;
-					} while (nextTokenConversations);
-
-					setConversations(allConversations);
+					setConversations((previousConversations) => {
+						return [...previousConversations, ...allConversations];
+					});
 				} catch (error: any) {
 					console.log(error.response?.data || error);
 
@@ -140,6 +119,36 @@ export const Dashboard = () => {
 			})();
 		}
 	}, [botpressClient]);
+
+	function loadOlderConversations() {
+		if (!botpressClient) {
+			return;
+		}
+
+		(async () => {
+			try {
+				const listConversations =
+					await botpressClient.listConversations({
+						nextToken: nextConversationsToken,
+					});
+
+				setNextConversationsToken(
+					listConversations.meta.nextToken || undefined
+				);
+
+				setConversations((previousConversations) => {
+					return [
+						...previousConversations,
+						...listConversations.conversations,
+					];
+				});
+			} catch (error: any) {
+				console.log(error.response?.data || error.message || error);
+
+				toast.error("Couldn't load older conversations");
+			}
+		})();
+	}
 
 	function promptCredentials() {
 		toast('Please inform your credentials');
@@ -166,18 +175,17 @@ export const Dashboard = () => {
 	return botpressClient ? (
 		<div className="flex h-screen">
 			<div className="mx-auto max-w-7xl gap-5 flex w-full my-24">
-				<ConversationList
-					conversations={conversations}
-					className="w-1/4 border-2 rounded-xl shadow-xl"
-					selectedConversationId={selectedConversation?.id}
-					onSelectConversation={(conversation: Conversation) =>
-						setSelectedConversation(conversation)
-					}
-					botpressClient={botpressClient}
-					// loadOlderConversations={
-					// 	nextToken ? loadOlderConversations : undefined
-					// }
-				/>
+				<aside className="w-1/4 border-2 rounded-xl shadow-xl overflow-auto">
+					<ConversationList
+						conversations={conversations}
+						onSelectConversation={(conversation: Conversation) =>
+							setSelectedConversation(conversation)
+						}
+						selectedConversationId={selectedConversation?.id}
+						loadOlderConversations={loadOlderConversations}
+						nextConversationsToken={nextConversationsToken}
+					/>
+				</aside>
 
 				<div className="w-3/4 flex rounded-xl">
 					{selectedConversation ? (

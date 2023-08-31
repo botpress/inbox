@@ -1,28 +1,44 @@
-import { Client, Conversation } from '@botpress/client';
+import InfiniteScroll from 'react-infinite-scroller';
+import { Conversation } from '@botpress/client';
 import { ConversationItem } from './ConversationItem';
-import { ConversationWithMessagesAndUsers } from '../pages/Dashboard';
 
 interface ConversationListProps {
-	conversations: ConversationWithMessagesAndUsers[];
-	selectedConversationId?: string;
+	conversations: Conversation[];
 	onSelectConversation: (conversation: Conversation) => void;
+	loadOlderConversations: () => void;
+	nextConversationsToken?: string;
+	selectedConversationId?: string;
 	className?: string;
-	botpressClient: Client;
-	// loadOlderConversations?: () => void;
 }
 
 export const ConversationList = ({
 	conversations,
-	selectedConversationId,
 	onSelectConversation,
-	// loadOlderConversations,
+	loadOlderConversations,
+	nextConversationsToken,
+	selectedConversationId,
 	className,
 }: ConversationListProps) => {
 	return (
-		<div className={`flex flex-col items-center ${className}`}>
-			<div className="overflow-y-scroll flex w-full flex-col divide-y-2">
+		<InfiniteScroll
+			pageStart={0}
+			loadMore={loadOlderConversations}
+			hasMore={nextConversationsToken ? true : false}
+			loader={
+				<div
+					className="loader rounded-xl p-2 m-3 border-2 font-medium"
+					key={0}
+				>
+					Loading older conversations...
+				</div>
+			}
+			useWindow={false}
+		>
+			<div
+				className={`flex flex-col  items-center w-full divide-y-2 ${className}`}
+			>
 				{conversations
-					// ordena pela mensagem com data mais recente
+					// if the conversation had the messages data, they could be sorted by the last message
 					.sort((a, b) => {
 						// a.messages.sort(
 						// 	(a, b) =>
@@ -40,6 +56,7 @@ export const ConversationList = ({
 						// 	new Date(a.messages[0].createdAt).getTime()
 						// );
 
+						// sorts the conversations by the last update instead
 						return (
 							new Date(b.updatedAt).getTime() -
 							new Date(a.updatedAt).getTime()
@@ -61,14 +78,9 @@ export const ConversationList = ({
 						</button>
 					))}
 			</div>
-			{/* {loadOlderConversations && (
-				<button
-					className="rounded-xl p-2 m-3 border-2"
-					onClick={() => loadOlderConversations()}
-				>
-					Load older conversations
-				</button>
-			)} */}
-		</div>
+			<div className="rounded-xl p-2 m-3 text-center border-2 font-medium">
+				No more conversations
+			</div>
+		</InfiniteScroll>
 	);
 };

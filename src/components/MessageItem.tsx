@@ -63,7 +63,9 @@ export const MessageItem = ({ message, className }: MessageItemProps) => {
 						</ul>
 					</>
 				) : (
-					<></>
+					<span className="whitespace-pre-line">
+						Could not show content
+					</span>
 				)}
 			</div>
 			<span className="text-sm text-gray-400">

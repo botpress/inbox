@@ -23,12 +23,15 @@ export function UserItem({ user }: UserItemProps) {
 				) : (
 					<p className="flex flex-col leading-none">
 						<span className="font-medium">
-							{user.tags['whatsapp:name'] || 'User with no name'}
+							{user.tags['whatsapp:name'] || user.tags['name'] || 'Unnamed user'}
 						</span>
-						<span className="text-sm text-gray-400">
-							{user.tags['whatsapp:userId'] ||
-								'No whatsapp user id'}
-						</span>
+						{user.tags['whatsapp:userId'] ? (
+							<span className="text-sm text-gray-400">
+								{user.tags['whatsapp:userId']}
+							</span>
+						) : (
+							<></>
+						)}
 					</p>
 				)}
 			</div>

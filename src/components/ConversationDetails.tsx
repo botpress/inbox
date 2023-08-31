@@ -2,6 +2,7 @@ import toast from 'react-hot-toast';
 import { Conversation, Message, User } from '@botpress/client';
 import { ConversationInfo } from './ConversationInfo';
 import { isDefinedAndHasItems } from '../utils';
+import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
@@ -19,7 +20,7 @@ export const ConversationDetails = ({
 }: ConversationDetailsProps) => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isLoadingMessages, setIsLoadingMessages] = useState(true);
-	const [nextToken, setNextToken] = useState<string>();
+	const [nextMessagesToken, setNextMessagesToken] = useState<string>();
 
 	const [users, setUsers] = useState<User[]>([]);
 	const [isLoadingUsers, setIsLoadingUsers] = useState(false);
@@ -28,13 +29,13 @@ export const ConversationDetails = ({
 
 	async function loadOlderMessages() {
 		try {
-			if (!nextToken || !botpressClient) {
+			if (!nextMessagesToken || !botpressClient) {
 				return;
 			}
 
 			const getMessages = await botpressClient.listMessages({
 				conversationId: conversation.id,
-				nextToken,
+				nextToken: nextMessagesToken,
 			});
 
 			console.log('MESSAGES:', getMessages);
@@ -44,7 +45,7 @@ export const ConversationDetails = ({
 				...prevMessages,
 			]);
 
-			setNextToken(getMessages.meta.nextToken || undefined);
+			setNextMessagesToken(getMessages.meta.nextToken || undefined);
 		} catch (error: any) {
 			console.log(error.response?.data || error);
 
@@ -53,7 +54,11 @@ export const ConversationDetails = ({
 	}
 
 	async function handleDeleteConversation(conversationId: string) {
-		if (confirm('Are you sure you want to delete this conversation?')) {
+		if (
+			confirm(
+				'Are you sure you want to delete this conversation?\nAll of its messages and users are gonna be deleted!'
+			)
+		) {
 			try {
 				const deleteConversation =
 					await botpressClient?.deleteConversation({
@@ -135,9 +140,9 @@ export const ConversationDetails = ({
 				});
 
 				setMessages(getMessages.messages);
-				setNextToken(getMessages.meta.nextToken || undefined);
+				setNextMessagesToken(getMessages.meta.nextToken || undefined);
 			} catch (error: any) {
-				console.log(error.response.data);
+				console.log(error.response.data || error.message || error);
 
 				toast.error("Couldn't load messages");
 			}
@@ -208,13 +213,24 @@ export const ConversationDetails = ({
 						Loading messages...
 					</div>
 				) : (
-					<MessageList
-						messages={messages}
-						conversationId={conversation.id}
-						loadOlderMessages={
-							nextToken ? loadOlderMessages : undefined
-						}
-					/>
+					<div className="flex flex-col h-full p-5">
+						<div className="overflow-auto h-full">
+							<MessageList
+								messages={messages}
+								loadOlderMessages={loadOlderMessages}
+								nextMessagesToken={nextMessagesToken}
+							/>
+						</div>
+						<MessageInput
+							conversationId={conversation.id}
+							addMessageToList={(message: Message) => {
+								setMessages((prevMessages) => [
+									...prevMessages,
+									message,
+								]);
+							}}
+						/>
+					</div>
 				)}
 			</div>
 
@@ -228,7 +244,6 @@ export const ConversationDetails = ({
 						conversation={conversation}
 						users={users}
 						onDeleteConversation={handleDeleteConversation}
-						// onUpdateConversation={handleUpdateConversation}
 						className="flex"
 					/>
 				)}
