@@ -14,22 +14,16 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 ## 💬 How to use
 
 1. ⬇️ Download this project folder
-2. 📁 Create a .env file in the root folder
-3. ⚙️ Add the following variables to the .env file (We will use the real values in the sequence, also don't forget to remove <>)
- ```
-   VITE_BOTPRESS_TOKEN=<your token>
-   VITE_BOTPRESS_BOT_ID=<your bot id>
-   VITE_BOTPRESS_WORKSPACE_ID=<your workspace id>
-   VITE_BOTPRESS_BOT_ID_AS_USER=<your bot id as a user>
-```
-4. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
-5. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
-6. 🔗 Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
-7. 🚀 Start the project with `npm install && npm run dev` and open it in the browser
-8. 🤖 Now to figure out your bot id as a user, open any conversation and go to the developer console. You will see a `MESSAGES: [...]` log. Open the list and look for the first message sent by the bot (a good clue is direction: "outgoing"). 
-9. ✂️ Copy the userId from the message and paste it in the .env file of the project. This will be used for sending messages and for differentiating the bot from other users.
-10. ✅ You're done! 
-11. ✨ EXTRA - You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
+2. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
+3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
+4. 🔗 Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
+5. 🚀 Start the project with `npm install && npm run start` and open it in the browser
+6. ✅ You're done!
+
+## ✨ EXTRA
+
+* In order to send messages as the bot, you need to have a conversation where the bot has sent a automated message before
+* You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
 
 ## 👀 How it looks like
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
