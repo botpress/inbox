@@ -14,8 +14,8 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 ## 💬 How to use
 
 1. ⬇️ Download this project folder
-2. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
-3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in app
+2. 🖥️ Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
+3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the app
 4. 🔗 Still in the dashboard, open your bot and copy and paste the URL in the app
 5. 🚀 Start the project with `npm install && npm run start` and open it in the browser
 6. ✅ You're done!
@@ -28,18 +28,6 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 ## 👀 How it looks like
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
 
-## ⚙️ Libraries
-
-This project makes use of the following libraries:
-
--   React.js v18 - app structure
--   Vite.js v2 - app build
--   Botpress Client v0.1.1 - requests to the botpress API
--   Date-fns v2.30 - date formatting
--   Typescript v4.8 - typings and interfaces
--   TailwindCSS v3.1.8 - styling
--   React Router Dom v6 - routing
-
 ## ✅ To do
 
 -   [ ] Create conversation
@@ -49,6 +37,22 @@ This project makes use of the following libraries:
 -   [ ] Better styling
 -   [ ] Responsive style for mobile
 -   [ ] Authentication
+-   [x] Load conversations and messages on scroll
+-   [x] Get the bot id as user automatically
+-	[x] Prompt the user for token and ids instead of using .env
+
+## ⚙️ Libraries
+
+This project makes use of the following libraries:
+
+-   React.js v18.2 - app structure
+-   Vite.js v3.1 - app build
+-   Botpress Client v0.1.1 - requests to the botpress API
+-   Date-fns v2.30 - date formatting
+-   Typescript v4.8 - typings and interfaces
+-   TailwindCSS v3.1 - styling
+-   React Router Dom v6.11 - routing
+-   CryptoJS - encrypting keys
 
 ## 👥 Contribution
 
