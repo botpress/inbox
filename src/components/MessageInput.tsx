@@ -6,11 +6,15 @@ import { useState } from 'react';
 interface MessageInputProps {
 	conversationId: string;
 	addMessageToList: (message: Message) => void;
+	handleScrollToBottom: () => void;
+	botpressBotIdAsAUser?: string;
 }
 
 export const MessageInput = ({
 	conversationId,
 	addMessageToList,
+	handleScrollToBottom,
+	botpressBotIdAsAUser,
 }: MessageInputProps) => {
 	const [messageInput, setMessageInput] = useState<string>('');
 
@@ -20,7 +24,7 @@ export const MessageInput = ({
 		try {
 			const sendMessageBody: CreateMessageBody = {
 				conversationId,
-				userId: import.meta.env.VITE_BOTPRESS_BOT_ID_AS_USER,
+				userId: botpressBotIdAsAUser!,
 				payload: { text: messageInput },
 				type: 'text',
 				tags: {},
@@ -36,6 +40,8 @@ export const MessageInput = ({
 				setMessageInput('');
 
 				addMessageToList(sendMessage.message);
+
+				handleScrollToBottom();
 			}
 		} catch (error: any) {
 			console.log(error.response.data);
@@ -44,7 +50,7 @@ export const MessageInput = ({
 		}
 	}
 
-	return (
+	return botpressBotIdAsAUser ? (
 		<div className="flex gap-2 items-center flex-shrink-0 mt-5">
 			<input
 				type="text"
@@ -64,6 +70,11 @@ export const MessageInput = ({
 			>
 				Send
 			</button>
+		</div>
+	) : (
+		<div className="bg-gray-100 p-5 mb-10 text-lg font-medium rounded-xl mx-auto">
+			You can only send messages in conversations where your bot has
+			already talked to the user...
 		</div>
 	);
 };

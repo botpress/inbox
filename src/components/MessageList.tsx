@@ -2,38 +2,31 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { isDefinedAndHasItems } from '../utils';
 import { Message } from '@botpress/client/dist/gen';
 import { MessageItem } from './MessageItem';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface MessageListProps {
 	messages: Message[];
 	loadOlderMessages: () => void;
+	handleScrollToBottom: () => void;
+	bottomRef: React.RefObject<HTMLDivElement>;
 	nextMessagesToken?: string;
 }
 
 export const MessageList = ({
 	messages,
 	loadOlderMessages,
+	handleScrollToBottom,
+	bottomRef,
 	nextMessagesToken,
 }: MessageListProps) => {
 	const [messageList, setMessageList] = useState<Message[]>([]);
 
-	const messageListEndRef = useRef<HTMLDivElement>(null);
-
-	function handleScrollToEnd() {
-		if (messageListEndRef.current) {
-			messageListEndRef.current.scrollIntoView({ behavior: 'smooth' });
-		} else {
-			console.log('messageListEndRef.current is null');
-		}
-	}
-
 	useEffect(() => {
-		console.log('MESSAGES', messages);
 		setMessageList(messages);
 	}, [messages]);
 
 	useEffect(() => {
-		handleScrollToEnd();
+		handleScrollToBottom();
 	}, []);
 
 	return (
@@ -73,7 +66,7 @@ export const MessageList = ({
 									}
 								/>
 							))}
-						<div ref={messageListEndRef} />
+						<div ref={bottomRef} />
 					</>
 				) : (
 					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">

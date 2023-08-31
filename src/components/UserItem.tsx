@@ -5,9 +5,10 @@ import { User } from '@botpress/client';
 
 interface UserItemProps {
 	user: User;
+	botpressBotIdAsAUser?: string;
 }
 
-export function UserItem({ user }: UserItemProps) {
+export function UserItem({ user, botpressBotIdAsAUser }: UserItemProps) {
 	return (
 		<div className="flex flex-col justify-between gap-2 rounded-xl p-4 w-full border">
 			<div className="flex gap-2 items-center">
@@ -16,14 +17,16 @@ export function UserItem({ user }: UserItemProps) {
 					alt="Default avatar"
 					className="h-10"
 				/>
-				{user.id === import.meta.env.VITE_BOTPRESS_BOT_ID_AS_USER ? (
+				{user.id === botpressBotIdAsAUser ? (
 					<p className="flex flex-col">
 						<span className="font-medium text-blue-500">Bot</span>
 					</p>
 				) : (
 					<p className="flex flex-col leading-none">
 						<span className="font-medium">
-							{user.tags['whatsapp:name'] || user.tags['name'] || 'Unnamed user'}
+							{user.tags['whatsapp:name'] ||
+								user.tags['name'] ||
+								'Unnamed user'}
 						</span>
 						{user.tags['whatsapp:userId'] ? (
 							<span className="text-sm text-gray-400">

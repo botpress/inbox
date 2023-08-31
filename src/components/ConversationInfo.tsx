@@ -5,14 +5,8 @@ import { UserItem } from './UserItem';
 interface ConversationInfoProps {
 	conversation: Conversation;
 	users: User[];
+	botpressBotIdAsAUser?: string;
 	onDeleteConversation: (conversationId: string) => void;
-	// onUpdateConversation: (
-	// 	conversationId: string,
-	// 	data: {
-	// 		name?: string;
-	// 		phone?: string;
-	// 	}
-	// ) => void;
 	className?: string;
 }
 
@@ -25,56 +19,29 @@ export interface UserForm {
 export const ConversationInfo = ({
 	conversation,
 	users,
+	botpressBotIdAsAUser,
 	onDeleteConversation,
 	className,
 }: ConversationInfoProps) => {
 	return (
 		<div className={`flex flex-col gap-8 p-4 ${className}`}>
-			{/* <div className="flex items-center gap-4">
-				<div className="flex-shrink-0 self-center w-20 h-20 rounded-full bg-gray-300 mr-2" />
-				<input
-					className="w-full px-3 py-1 rounded-xl border-2 text-lg font-medium"
-					{...register('name', { required: false, disabled: true })}
-				/>
-			</div> */}
-			{/* Phone */}
-			{/* <div className="flex items-center relative">
-				<span className="absolute top-2 left-2">📞</span>
-				<input
-					className="w-full pl-10 pr-3 py-1 rounded-xl border-2"
-					{...register('phone', { required: false, disabled: true })}
-				/>
-			</div> */}
-			{/* Textarea for details */}
-			{/* <div className="flex items-center relative">
-				<span className="absolute top-2 left-2">💬</span>
-				<textarea
-					className="w-full pl-10 pr-3 py-1 rounded-lg border-2"
-					placeholder="Sobre o usuário..."
-					{...register('about', { required: false, disabled: true })}
-				/>
-			</div> */}
-			{/* <button
-				className="bg-gray-400 font-medium text-white rounded-xl p-2"
-				type="submit"
-				disabled={true}
-			>
-				Atualizar conversa
-			</button> */}
-
 			<div>
 				{users.length > 0 ? (
 					<div className="flex flex-wrap gap-2">
 						{users
 							.sort((a) =>
 								// to have the bot at the bottom always
-								a.id ===
-								import.meta.env.VITE_BOTPRESS_BOT_ID_AS_USER
-									? 1
-									: -1
+								a.id === botpressBotIdAsAUser ? 1 : -1
 							)
 							.map((user) => {
-								return <UserItem user={user} />;
+								return (
+									<UserItem
+										user={user}
+										botpressBotIdAsAUser={
+											botpressBotIdAsAUser
+										}
+									/>
+								);
 							})}
 					</div>
 				) : (

@@ -5,7 +5,7 @@ import { isDefinedAndHasItems } from '../utils';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
 import { useBotpressClient } from '../hooks/botpressClient';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ConversationDetailsProps {
 	conversation: Conversation;
@@ -26,6 +26,19 @@ export const ConversationDetails = ({
 	const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
 	const { botpressClient } = useBotpressClient();
+	const [botpressBotIdAsAUser, setBotpressBotIdAsAUser] = useState<
+		string | undefined
+	>(undefined);
+
+	const messageListEndRef = useRef<HTMLDivElement>(null);
+
+	function handleScrollToBottom() {
+		if (messageListEndRef.current) {
+			messageListEndRef.current.scrollIntoView({ behavior: 'smooth' });
+		} else {
+			console.log('messageListEndRef.current is null');
+		}
+	}
 
 	async function loadOlderMessages() {
 		try {
@@ -37,8 +50,6 @@ export const ConversationDetails = ({
 				conversationId: conversation.id,
 				nextToken: nextMessagesToken,
 			});
-
-			console.log('MESSAGES:', getMessages);
 
 			setMessages((prevMessages) => [
 				...getMessages.messages,
@@ -80,49 +91,6 @@ export const ConversationDetails = ({
 		}
 	}
 
-	// async function handleUpdateConversation(
-	// 	conversationId: string,
-	// 	data: {
-	// 		name?: string;
-	// 		phone?: string;
-	// 	}
-	// ) {
-	// 	try {
-	// 		const tags: {
-	// 			[key: string]: string | undefined;
-	// 		} = {};
-
-	// 		if (data.name) {
-	// 			tags['user:name'] = data.name;
-	// 		}
-
-	// 		if (data.phone) {
-	// 			tags['whatsapp:userPhone'] = data.phone;
-	// 		}
-
-	// 		const updateConversation = await botpressApi.put(
-	// 			`conversations/${conversationId}`,
-	// 			{
-	// 				tags,
-	// 				// gets all the userids together with no duplicates
-	// 				participantIds: [
-	// 					...new Set(messages.map((message) => message.userId)),
-	// 				],
-	// 			}
-	// 		);
-
-	// 		console.log(updateConversation.data);
-
-	// 		if (updateConversation.status === 200) {
-	// 			alert('Conversa atualizada com sucesso');
-	// 		}
-	// 	} catch (error: any) {
-	// 		console.log(error.response.data);
-
-	// 		alert('Deu problema ao atualizar conversa');
-	// 	}
-	// }
-
 	useEffect(() => {
 		setMessages([]); // reset messages
 		setUsers([]); // reset users
@@ -152,14 +120,23 @@ export const ConversationDetails = ({
 	}, [conversation]);
 
 	useEffect(() => {
+		// sets the botpress bot id as a user by searching all messages
+		messages.forEach((message) => {
+			if (message.direction === 'outgoing') {
+				setBotpressBotIdAsAUser(message.userId);
+			}
+		});
+
 		isDefinedAndHasItems(messages) &&
 			!isDefinedAndHasItems(users) &&
 			(async () => {
 				setIsLoadingUsers(true);
 
 				try {
+					// grabs all user ids from messages
 					const userIds = messages.reduce(
 						(acc: string[], message: Message) => {
+							// checks if the message has a userId and if it's not already in the array
 							if (
 								message.userId &&
 								!acc.includes(message.userId)
@@ -172,6 +149,7 @@ export const ConversationDetails = ({
 						[]
 					);
 
+					// gets all users from the user ids
 					userIds.forEach(async (userId, index) => {
 						try {
 							const showUserRequest =
@@ -219,6 +197,8 @@ export const ConversationDetails = ({
 								messages={messages}
 								loadOlderMessages={loadOlderMessages}
 								nextMessagesToken={nextMessagesToken}
+								handleScrollToBottom={handleScrollToBottom}
+								bottomRef={messageListEndRef}
 							/>
 						</div>
 						<MessageInput
@@ -229,6 +209,8 @@ export const ConversationDetails = ({
 									message,
 								]);
 							}}
+							botpressBotIdAsAUser={botpressBotIdAsAUser}
+							handleScrollToBottom={handleScrollToBottom}
 						/>
 					</div>
 				)}
@@ -244,6 +226,7 @@ export const ConversationDetails = ({
 						conversation={conversation}
 						users={users}
 						onDeleteConversation={handleDeleteConversation}
+						botpressBotIdAsAUser={botpressBotIdAsAUser}
 						className="flex"
 					/>
 				)}
