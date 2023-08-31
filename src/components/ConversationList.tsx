@@ -78,9 +78,11 @@ export const ConversationList = ({
 						</button>
 					))}
 			</div>
-			<div className="rounded-xl p-2 m-3 text-center border-2 font-medium">
-				No more conversations
-			</div>
+			{!nextConversationsToken && (
+				<div className="rounded-xl p-2 m-3 text-center border-2 font-medium">
+					No more conversations
+				</div>
+			)}
 		</InfiniteScroll>
 	);
 };

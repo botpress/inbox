@@ -3,6 +3,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 
 interface BotpressClientContextData {
 	createClient: (token: string, workspaceId: string, botId: string) => void;
+	deleteClient: () => void;
 	botpressClient: Client | undefined;
 }
 
@@ -27,10 +28,15 @@ export function BotpressClientContextProvider({
 		setBotpressClient(new Client({ token, workspaceId, botId }));
 	}
 
+	function deleteClient(): void {
+		setBotpressClient(undefined);
+	}
+
 	return (
 		<BotpressClientContext.Provider
 			value={{
 				createClient,
+				deleteClient,
 				botpressClient,
 			}}
 		>
