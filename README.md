@@ -13,11 +13,11 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 ## 💬 How to use
 
-0. ☑️ Prerequisites: you need to have [Node.js](https://nodejs.org/en/download) installed and access to a command line app
+0. ☑️ Prerequisites: you need to have [Node.js](https://nodejs.org/en/download) installed and access to a command line app (Terminal/Power Shell/Command Prompt)
 1. ⬇️ Download this project folder and extract it
-2. 🖥️ Right click on the folder and open it on the Terminal/Power Shell, the active path should look like below (unless you moved it)
+2. 🖥️ Right click on the folder and open it on the , the active path should look like below (unless you moved it)
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/96f528dc-34e4-4b9c-8a21-44b038061db3)
-3. ⚙️ Copy this command - `npm begin` - then paste in the Terminal and press Enter to run the app
+3. ⚙️ Copy this command - `npm install && npm run start` - then paste in the Terminal and press Enter to run the app
 4. 📝 You are going to see a screen asking for your token and for the bot URL (these are saved only locally on your PC)
 5. 🧑‍💻 Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
 6. 🗝️ Create a new token called 'inbox-dashboard' for example, and paste it in the app
