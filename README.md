@@ -13,17 +13,20 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 ## 💬 How to use
 
-1. ⬇️ Download this project folder
-2. 🚀 Start the project with `npm install && npm run start` and open it in the browser
-3. 📝 You are going to see a screen asking for your token and for the bot URL
-4. 🖥️ Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
-5. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the app
-6. 🔗 Still in the dashboard, open your bot and copy and paste the URL in the app
-7. ✅ You're done!
+0. ☑️ Prerequisites: you need to have [Node.js](https://nodejs.org/en/download) installed and access to a command line app
+1. ⬇️ Download this project folder and extract it
+2. 🖥️ Right click on the folder and open it on the Terminal/Power Shell, the active path should look like below (unless you moved it)
+![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/96f528dc-34e4-4b9c-8a21-44b038061db3)
+3. ⚙️ Copy this command - `npm begin` - then paste in the Terminal and press Enter to run the app
+4. 📝 You are going to see a screen asking for your token and for the bot URL (these are saved only locally on your PC)
+5. 🧑‍💻 Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
+6. 🗝️ Create a new token called 'inbox-dashboard' for example, and paste it in the app
+7. 🔗 Still in the dashboard, click on the desired bot on the list and then copy and paste the URL in the app
+8. ✅ You're done!
 
-## ✨ EXTRA
+## ✨ EXTRA INFO
 
-* 🤖 In order to send messages as the bot, you need to have a conversation where the bot has sent an automated message before (from Botpress Studio)
+* 🤖 In order to send messages as the bot, the bot must have sent an automated message before (from Botpress Studio)
 * 🌐 You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
 
 ## 👀 How it looks like
@@ -40,7 +43,7 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 -   [ ] Authentication
 -   [x] Load conversations and messages on scroll
 -   [x] Get the bot id as user automatically
--	[x] Prompt the user for token and ids instead of using .env
+-	  [x] Prompt the user for token and ids instead of using .env
 
 ## ⚙️ Libraries
 
