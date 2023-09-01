@@ -13,32 +13,24 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 ## 💬 How to use
 
-1. ⬇️ Download this project folder
-2. 🖥️ Go to Botpress Dashboard, click your avatar, and go to Personal Access Tokens
-3. 🗝️ Create a new token named 'inbox-dashboard' for example, and paste it in the .env file in the project.
-4. 🔗 Still in the dashboard, open your bot and you will see the workspace and bot ids in the url. The workspace id is the string right after /workspaces/ and the bot id is right after /chatbots/. Copy and paste them in the .env file
-5. 🚀 Start the project with `npm install && npm run start` and open it in the browser
-6. ✅ You're done!
+0. ☑️ Prerequisites: you need to have [Node.js](https://nodejs.org/en/download) installed and access to a command line app (Terminal/Power Shell/Command Prompt)
+1. ⬇️ Download this project folder and extract it
+2. 🖥️ Right click on the folder and open it on the , the active path should look like below (unless you moved it)
+![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/96f528dc-34e4-4b9c-8a21-44b038061db3)
+3. ⚙️ Copy this command - `npm install && npm run start` - then paste in the Terminal and press Enter to run the app
+4. 📝 You are going to see a screen asking for your token and for the bot URL (these are saved only locally on your PC)
+5. 🧑‍💻 Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
+6. 🗝️ Create a new token called 'inbox-dashboard' for example, and paste it in the app
+7. 🔗 Still in the dashboard, click on the desired bot on the list and then copy and paste the URL in the app
+8. ✅ You're done!
 
-## ✨ EXTRA
+## ✨ EXTRA INFO
 
-* In order to send messages as the bot, you need to have a conversation where the bot has sent a automated message before
-* You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
+* 🤖 In order to send messages as the bot, the bot must have sent an automated message before (from Botpress Studio)
+* 🌐 You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
 
 ## 👀 How it looks like
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
-
-## ⚙️ Libraries
-
-This project makes use of the following libraries:
-
--   React.js v18 - app structure
--   Vite.js v2 - app build
--   Botpress Client v0.1.1 - requests to the botpress API
--   Date-fns v2.30 - date formatting
--   Typescript v4.8 - typings and interfaces
--   TailwindCSS v3.1.8 - styling
--   React Router Dom v6 - routing
 
 ## ✅ To do
 
@@ -49,6 +41,22 @@ This project makes use of the following libraries:
 -   [ ] Better styling
 -   [ ] Responsive style for mobile
 -   [ ] Authentication
+-   [x] Load conversations and messages on scroll
+-   [x] Get the bot id as user automatically
+-	  [x] Prompt the user for token and ids instead of using .env
+
+## ⚙️ Libraries
+
+This project makes use of the following libraries:
+
+-   React.js v18.2 - app structure
+-   Vite.js v3.1 - app build
+-   Botpress Client v0.1.1 - requests to the botpress API
+-   Date-fns v2.30 - date formatting
+-   Typescript v4.8 - typings and interfaces
+-   TailwindCSS v3.1 - styling
+-   React Router Dom v6.11 - routing
+-   CryptoJS - encrypting keys
 
 ## 👥 Contribution
 
