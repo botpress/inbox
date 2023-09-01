@@ -4,6 +4,7 @@ import { Message } from '@botpress/client/dist/gen';
 import { MessageItem } from './MessageItem';
 import { useEffect, useState } from 'react';
 
+
 interface MessageListProps {
 	messages: Message[];
 	loadOlderMessages: () => void;
@@ -36,7 +37,7 @@ export const MessageList = ({
 			hasMore={nextMessagesToken ? true : false}
 			loader={
 				<div
-					className="loader rounded-xl p-2 m-3 border-2 font-medium"
+					className="loader rounded-md p-2 m-3 border-2 font-medium"
 					key={0}
 				>
 					Loading older messages...
@@ -69,7 +70,7 @@ export const MessageList = ({
 						<div ref={bottomRef} />
 					</>
 				) : (
-					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
+					<div className="self-center bg-zinc-200 p-5 text-lg font-medium rounded-md my-auto">
 						There are no messages...
 					</div>
 				)}

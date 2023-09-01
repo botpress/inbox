@@ -2,11 +2,27 @@ import toast from 'react-hot-toast';
 import { Conversation } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
-import { decrypt, encrypt } from '../services/crypto';
+import { Header } from '../components/interface/Header';
+import { LoadingAnimation } from '../components/interface/Loading';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
+import {
+	clearCredentials,
+	getStoredCredentials,
+	storeCredentials,
+} from '../services/storage';
+
 
 export const Dashboard = () => {
+	const [conversationsState, setConversationsState] = useState<{
+		isLoading: boolean;
+		bot?: {
+			id?: string;
+			name?: string;
+		};
+	}>({
+		isLoading: true,
+	});
 	const [selectedConversation, setSelectedConversation] =
 		useState<Conversation>();
 
@@ -24,59 +40,65 @@ export const Dashboard = () => {
 		setUserBotpressURL('');
 
 		deleteClient();
+
+		clearCredentials();
 	}
+
+	const logout = () => {
+		clearsCredentialsAndClient();
+		window.location.reload();
+	};
 
 	useEffect(() => {
 		if (!botpressClient) {
 			try {
-				const credentialsEncrypted = localStorage.getItem(
-					'bp-inbox-credentials'
-				);
+				const credentials = getStoredCredentials();
 
 				// if there are credentials saved in the Local Storage, decrypts and creates the client
-				if (credentialsEncrypted) {
-					const decryptedCredentialsString =
-						decrypt(credentialsEncrypted);
-
-					if (!decryptedCredentialsString) {
-						throw new Error('Invalid credentials');
-					}
-
-					const credentials = JSON.parse(decryptedCredentialsString);
-
-					if (!credentials) {
-						throw new Error('Invalid credentials');
-					}
-
-					if (
-						!credentials.token ||
-						!credentials.workspaceId ||
-						!credentials.botId
-					) {
-						throw new Error('Invalid credentials');
-					}
-
+				if (credentials) {
 					createClient(
 						credentials.token,
 						credentials.workspaceId,
 						credentials.botId
 					);
-				} else {
-					// removes the credentials from the Local Storage
-					localStorage.removeItem('bp-inbox-credentials');
 
-					// if there are no credentials saved, prompts the user to inform them
-					clearsCredentialsAndClient();
+					setConversationsState((prev) => ({
+						...prev,
+						bot: {
+							id: credentials.botId,
+							name: undefined,
+						},
+					}));
 				}
 			} catch (error: any) {
 				toast("Couldn't start the app");
-				toast.error(error.message || error);
 
-				clearsCredentialsAndClient();
+				toast.error(error.message || error);
 			}
 		} else {
 			// if there is a client, loads the conversations
 			(async () => {
+				try {
+					if (conversationsState.bot?.id) {
+						const getBot = await botpressClient.getBot({
+							id: conversationsState.bot!.id!,
+						});
+
+						setConversationsState((prev) => ({
+							...prev,
+							bot: {
+								...prev.bot,
+								name: getBot.bot.name,
+							},
+						}));
+					}
+				} catch (error) {}
+
+				setConversationsState((prev) => ({
+					...prev,
+					isLoading: true,
+				}));
+
 				try {
 					const allConversations: Conversation[] = [];
 
@@ -129,6 +151,11 @@ export const Dashboard = () => {
 
 					clearsCredentialsAndClient();
 				}
+
+				setConversationsState((prev) => ({
+					...prev,
+					isLoading: false,
+				}));
 			})();
 		}
 	}, [botpressClient]);
@@ -182,39 +209,62 @@ export const Dashboard = () => {
 				throw new Error();
 			}
 
-			createClient(token, workspaceId, botId);
+			const bpClient = createClient(token, workspaceId, botId);
+
+			if (!bpClient) {
+				throw new Error();
+			}
 
 			// saves the encrypted credentials to storage
-			localStorage.setItem(
-				'bp-inbox-credentials',
-				encrypt(JSON.stringify({ token, workspaceId, botId }))
-			);
+			storeCredentials({ token, workspaceId, botId });
 		} catch (error) {
-			toast.error('Invalid credentials');
+			toast.error('You have informed invalid credentials');
+
 			clearsCredentialsAndClient();
 		}
 	}
 
 	return botpressClient ? (
-		<div className="flex h-screen">
-			<div className="mx-auto max-w-7xl gap-5 flex w-full my-24">
-				<aside className="w-1/4 border-2 rounded-xl shadow-xl overflow-auto">
-					<ConversationList
-						conversations={conversations}
-						onSelectConversation={(conversation: Conversation) =>
-							setSelectedConversation(conversation)
-						}
-						selectedConversationId={selectedConversation?.id}
-						loadOlderConversations={loadOlderConversations}
-						nextConversationsToken={nextConversationsToken}
-					/>
-				</aside>
+		<div className="flex flex-col h-screen overflow-hidden bg-zinc-100 text-gray-800">
+			{/* HEADER */}
+			<Header handleLogout={logout} className="flex-shrink-0 h-14" />
+			{/* CONVERSATIONS */}
+			<div className="mx-2 mb-2 gap-2 flex overflow-hidden h-full">
+				<div className="flex flex-col gap-2 w-1/4">
+					<div className="px-3 py-2 text-lg text-white text-center font-medium rounded-md bg-zinc-800">
+						🤖 {conversationsState.bot?.name || 'Unnamed bot'}
+					</div>
 
-				<div className="w-3/4 flex rounded-xl">
+					{/* CONVERSATION LIST */}
+					<aside className="w-full flex-col flex flex-1 rounded-md border border-zinc-200 overflow-auto">
+						{conversationsState.isLoading ? (
+							<div className="self-center bg-zinc-200 p-6 text-lg font-medium rounded-md my-auto flex flex-col items-center gap-5">
+								<LoadingAnimation label="Loading messages..." />
+								Loading conversations...
+							</div>
+						) : (
+							<ConversationList
+								conversations={conversations}
+								onSelectConversation={(
+									conversation: Conversation
+								) => setSelectedConversation(conversation)}
+								selectedConversationId={
+									selectedConversation?.id
+								}
+								loadOlderConversations={loadOlderConversations}
+								nextConversationsToken={nextConversationsToken}
+								className="bg-white"
+							/>
+						)}
+					</aside>
+				</div>
+
+				{/* CONVERSATION DETAILS */}
+				<div className="flex w-3/4 h-full">
 					{selectedConversation ? (
 						<ConversationDetails
 							conversation={selectedConversation}
-							className="w-full gap-5"
+							className="w-full gap-1"
 							onDeleteConversation={(conversationId: string) => {
 								setSelectedConversation(undefined);
 								setConversations(
@@ -226,8 +276,8 @@ export const Dashboard = () => {
 							}}
 						/>
 					) : (
-						<div className="bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto mx-auto">
-							Select a conversation to see details...
+						<div className="bg-zinc-200 p-5 text-lg font-medium rounded-md my-auto mx-auto">
+							Select a conversation to see details
 						</div>
 					)}
 				</div>
@@ -237,40 +287,56 @@ export const Dashboard = () => {
 		<div className="flex flex-col h-screen">
 			<form
 				onSubmit={handleSubmitCredentials}
-				className="border-2 p-10 rounded-xl shadow-sm flex flex-col gap-3 max-w-xl w-full mx-auto my-auto"
+				className="border-2 p-10 rounded-md shadow-sm flex flex-col gap-3 max-w-xl w-full mx-auto my-auto"
 			>
-				<div className="bg-gray-100 p-5 mb-10 text-lg font-medium rounded-xl mx-auto">
-					Please inform your credentials
+				<div className="bg-zinc-100 px-5 py-3 mb-10 flex flex-col items-center gap-1 rounded-md mx-auto">
+					<img
+						src="https://avatars.githubusercontent.com/u/23510677?s=200&v=4"
+						alt="Botpress logo"
+						className="h-16 w-16 rounded-full"
+					/>
+					<span className="text-lg font-bold">Botpress Inbox</span>
+					<span>See your conversations</span>
 				</div>
 
-				<label htmlFor="" className="flex flex-col gap-1">
-					<span className="text-lg font-medium">
-						Personal Access Token
-					</span>
-					<input
-						type="text"
-						className="px-3 py-2 rounded-lg border-2 bg-white"
-						value={userBotpressToken}
-						onChange={(event) => {
-							setUserBotpressToken(event.target.value);
-						}}
-					/>
-				</label>
 				<label htmlFor="" className="flex flex-col gap-1">
 					<span className="text-lg font-medium">
 						Bot Dashboard URL
 					</span>
 					<input
 						type="text"
-						className="px-3 py-2 rounded-lg border-2 bg-white"
+						className="px-3 py-2 rounded-md border-2 bg-white"
 						value={userBotpressURL}
 						onChange={(event) => {
 							setUserBotpressURL(event.target.value);
 						}}
 					/>
+					<span className="text-sm italic text-gray-600">
+						Go to app.botpress.cloud, open your bot and copy the
+						link
+					</span>
 				</label>
+
+				<label htmlFor="" className="flex flex-col gap-1">
+					<span className="text-lg font-medium">
+						Personal Access Token
+					</span>
+					<input
+						type="password"
+						className="px-3 py-2 rounded-md border-2 bg-white"
+						value={userBotpressToken}
+						onChange={(event) => {
+							setUserBotpressToken(event.target.value);
+						}}
+					/>
+					<span className="text-sm italic text-gray-600">
+						You can find this by clicking your avatar in the
+						dashboard
+					</span>
+				</label>
+
 				<button
-					className="w-full p-3 rounded-lg bg-blue-500 mx-auto"
+					className="w-full p-3 rounded-md bg-blue-500 mx-auto"
 					type="button"
 					onClick={() => handleSubmitCredentials()}
 				>

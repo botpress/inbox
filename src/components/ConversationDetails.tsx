@@ -2,10 +2,12 @@ import toast from 'react-hot-toast';
 import { Conversation, Message, User } from '@botpress/client';
 import { ConversationInfo } from './ConversationInfo';
 import { isDefinedAndHasItems } from '../utils';
+import { LoadingAnimation } from './interface/Loading';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useRef, useState } from 'react';
+
 
 interface ConversationDetailsProps {
 	conversation: Conversation;
@@ -185,9 +187,10 @@ export const ConversationDetails = ({
 
 	return (
 		<div className={`flex ${className}`}>
-			<div className="w-2/3 flex flex-col border-2 rounded-xl shadow-xl">
+			<div className="w-2/3 flex flex-col default-border bg-white">
 				{isLoadingMessages ? (
-					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
+					<div className="self-center bg-zinc-200 p-6 text-lg font-medium rounded-md my-auto flex flex-col items-center gap-5">
+						<LoadingAnimation label="Loading messages..." />
 						Loading messages...
 					</div>
 				) : (
@@ -216,9 +219,10 @@ export const ConversationDetails = ({
 				)}
 			</div>
 
-			<div className="w-1/3 border-2 rounded-xl overflow-y-auto shadow-xl">
+			<div className="w-1/3 default-border overflow-y-auto bg-white">
 				{isLoadingUsers ? (
-					<div className="self-center bg-gray-100 p-5 text-lg font-medium rounded-xl my-auto">
+					<div className="self-center bg-zinc-200 p-6 text-lg font-medium rounded-md my-auto flex flex-col items-center gap-5">
+						<LoadingAnimation label="Loading messages..." />
 						Loading users' details...
 					</div>
 				) : (

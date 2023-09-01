@@ -3,6 +3,7 @@ import { CreateMessageBody, Message } from '@botpress/client/dist/gen';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useState } from 'react';
 
+
 interface MessageInputProps {
 	conversationId: string;
 	addMessageToList: (message: Message) => void;
@@ -54,13 +55,13 @@ export const MessageInput = ({
 		<div className="flex gap-2 items-center flex-shrink-0 mt-5">
 			<input
 				type="text"
-				className="w-full rounded-xl border-2 p-4"
+				className="w-full rounded-2xl border-2 p-4"
 				placeholder="Type something..."
 				value={messageInput}
 				onChange={(e) => setMessageInput(e.target.value)}
 			/>
 			<button
-				className="bg-blue-500 text-white rounded-xl p-4"
+				className="bg-blue-500 text-white rounded-2xl p-4"
 				onClick={() => handleSendMessage()}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' || e.keyCode === 13) {
@@ -72,7 +73,7 @@ export const MessageInput = ({
 			</button>
 		</div>
 	) : (
-		<div className="bg-gray-100 p-5 mb-10 text-lg font-medium rounded-xl mx-auto">
+		<div className="bg-zinc-200 p-5 mb-10 text-lg font-medium rounded-md mx-auto">
 			You can only send messages in conversations where your bot has
 			already talked to the user...
 		</div>

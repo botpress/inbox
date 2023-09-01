@@ -1,6 +1,7 @@
 import InfiniteScroll from 'react-infinite-scroller';
 import { Conversation } from '@botpress/client';
 import { ConversationItem } from './ConversationItem';
+import { LoadingAnimation } from './interface/Loading';
 
 interface ConversationListProps {
 	conversations: Conversation[];
@@ -26,9 +27,13 @@ export const ConversationList = ({
 			hasMore={nextConversationsToken ? true : false}
 			loader={
 				<div
-					className="loader rounded-xl p-2 m-3 border-2 font-medium"
+					className="loader rounded-md px-3 py-2 flex items-center gap-2 m-3 border-2 font-medium"
 					key={0}
 				>
+					<LoadingAnimation
+						label={'Loading conversations'}
+						className="h-6 w-6"
+					/>
 					Loading older conversations...
 				</div>
 			}
@@ -79,7 +84,7 @@ export const ConversationList = ({
 					))}
 			</div>
 			{!nextConversationsToken && (
-				<div className="rounded-xl p-2 m-3 text-center border-2 font-medium">
+				<div className="rounded-md p-2 m-3 text-center border-2 font-medium">
 					No more conversations
 				</div>
 			)}

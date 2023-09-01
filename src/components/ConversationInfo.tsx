@@ -2,6 +2,7 @@ import { Conversation, User } from '@botpress/client';
 import { formatRelative } from 'date-fns';
 import { UserItem } from './UserItem';
 
+
 interface ConversationInfoProps {
 	conversation: Conversation;
 	users: User[];
@@ -45,7 +46,7 @@ export const ConversationInfo = ({
 							})}
 					</div>
 				) : (
-					<div className="flex flex-col justify-between text-gray-400 gap-2 rounded-xl p-4 w-full border-2">
+					<div className="flex flex-col justify-between text-gray-400 gap-2 rounded-md p-4 w-full border-2">
 						No users info
 					</div>
 				)}
@@ -56,7 +57,7 @@ export const ConversationInfo = ({
 				{Object.keys(conversation.tags).map((tag) => {
 					return (
 						<span
-							className="bg-gray-200 w-full rounded-xl px-2 py-1 text-xs"
+							className="bg-gray-200 w-full rounded-md px-2 py-1 text-xs"
 							key={tag}
 						>
 							🏷️ <span className="font-medium">{tag}</span>{' '}
@@ -92,7 +93,7 @@ export const ConversationInfo = ({
 			</div>
 			<hr />
 			<button
-				className="bg-red-500 font-medium text-white rounded-xl p-2"
+				className="bg-red-500 font-medium text-white rounded-md p-2"
 				type="button"
 				onClick={() => onDeleteConversation(conversation.id)}
 			>

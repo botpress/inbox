@@ -17,7 +17,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
 	return (
 		<div
 			className={`flex items-center px-5 py-4 ${
-				isSelected ? 'bg-gray-100' : ''
+				isSelected ? 'bg-zinc-200' : ''
 			}`}
 		>
 			{/* Placeholder rounded profile pic */}

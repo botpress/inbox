@@ -23,3 +23,9 @@ export type CustomClientBP = (
 	workspaceId: string,
 	botId: string
 ) => Client;
+
+export interface CredentialsClientBP {
+	token: string;
+	workspaceId: string;
+	botId: string;
+}

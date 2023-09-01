@@ -10,7 +10,7 @@ interface UserItemProps {
 
 export function UserItem({ user, botpressBotIdAsAUser }: UserItemProps) {
 	return (
-		<div className="flex flex-col justify-between gap-2 rounded-xl p-4 w-full border">
+		<div className="flex flex-col justify-between gap-2 rounded-md p-4 w-full border">
 			<div className="flex gap-2 items-center">
 				<img
 					src={defaultAvatarImg}
@@ -51,7 +51,7 @@ export function UserItem({ user, botpressBotIdAsAUser }: UserItemProps) {
 							.map((tag) => {
 								return (
 									<span
-										className="flex flex-col bg-gray-200 rounded-xl px-2 py-1 text-xs"
+										className="flex flex-col bg-gray-200 rounded-md px-2 py-1 text-xs"
 										key={tag}
 									>
 										<span className="font-medium">

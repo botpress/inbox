@@ -1,8 +1,13 @@
+import toast from 'react-hot-toast';
 import { Client } from '@botpress/client';
 import { createContext, ReactNode, useContext, useState } from 'react';
 
 interface BotpressClientContextData {
-	createClient: (token: string, workspaceId: string, botId: string) => void;
+	createClient: (
+		token: string,
+		workspaceId: string,
+		botId: string
+	) => Client | null;
 	deleteClient: () => void;
 	botpressClient: Client | undefined;
 }
@@ -24,9 +29,21 @@ export function BotpressClientContextProvider({
 		token: string,
 		workspaceId: string,
 		botId: string
-	): void {
-		setBotpressClient(new Client({ token, workspaceId, botId }));
+	): Client | null {
+		try {
+			const client = new Client({ token, workspaceId, botId });
+
+			setBotpressClient(client);
+
+			return client;
+		} catch (error) {
+			toast.error("Couldn't create client");
+
+			return null;
+		}
 	}
+
+	botpressClient?.listConversations({});
 
 	function deleteClient(): void {
 		setBotpressClient(undefined);
