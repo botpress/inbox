@@ -293,16 +293,7 @@ export const Dashboard = () => {
 					onSubmit={handleSubmitCredentials}
 					className="border-2 p-10 rounded-md shadow-sm flex flex-col gap-3"
 				>
-					<div className="bg-zinc-100 px-5 py-3 mb-10 flex flex-col items-center gap-1 rounded-md mx-auto">
-						{/* <img
-							src="https://avatars.githubusercontent.com/u/23510677?s=200&v=4"
-							alt="Botpress logo"
-							className="h-16 w-16 rounded-full"
-						/> */}
-						<span className="text-2xl font-bold">
-							Botpress Inbox
-						</span>
-					</div>
+					<Disclaimer full />
 
 					<label htmlFor="" className="flex flex-col gap-1">
 						<span className="text-lg font-medium">
@@ -350,7 +341,6 @@ export const Dashboard = () => {
 						</span>
 					</button>
 				</form>
-				<Disclaimer full />
 			</div>
 		</div>
 	);

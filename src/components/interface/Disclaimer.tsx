@@ -4,10 +4,10 @@ interface DisclaimerProps {
 
 export function Disclaimer({ full }: DisclaimerProps) {
 	return (
-		<p className="px-4 py-3 border-2 border-blue-300 bg-blue-100 rounded-md text-zinc-700">
+		<p className="px-4 py-3 border-2 border-blue-300 bg-blue-100 rounded-md text-zinc-700 font-medium">
 			{full && (
 				<>
-					This tool is not affiliated with Botpress.
+					This is a external tool to see your Botpress conversations.
 					<br />
 				</>
 			)}

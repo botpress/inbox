@@ -9,12 +9,7 @@ export function Header({ handleLogout, className }: HeaderProps) {
 			className={`overflow-hidden default-border bg-white p-3 flex items-center justify-between top-1 z-10 m-2 ${className}`}
 		>
 			<div className="flex flex-row gap-5 items-center">
-				<img
-					src="https://avatars.githubusercontent.com/u/23510677?s=200&v=4"
-					alt="Botpress logo"
-					className="h-10 rounded-full"
-				/>
-				<h1 className="text-lg font-medium">Botpress Inbox</h1>
+				<h1 className="text-lg font-medium">External tool</h1>
 			</div>
 			<div className="flex items-center gap-2">
 				<a className="relative cursor-pointer whitespace-nowrap rounded-md p-2 px-4 text-sm transition-colors  text-zinc-900">
