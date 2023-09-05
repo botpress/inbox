@@ -16,7 +16,7 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 0. ☑️ Prerequisites: you need to have [Node.js](https://nodejs.org/en/download) installed and access to a command line app (Terminal/Power Shell/Command Prompt)
 1. ⬇️ Download this project folder and extract it
 2. 🖥️ Right click on the folder and open it on the , the active path should look like below (unless you moved it)
-![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/96f528dc-34e4-4b9c-8a21-44b038061db3)
+   ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/96f528dc-34e4-4b9c-8a21-44b038061db3)
 3. ⚙️ Copy this command - `npm install && npm run start` - then paste in the Terminal and press Enter to run the app
 4. 📝 You are going to see a screen asking for your token and for the bot URL (these are saved only locally on your PC)
 5. 🧑‍💻 Go to Botpress Dashboard, click on your avatar, and go to Personal Access Tokens
@@ -26,24 +26,27 @@ This inbox dashboard can be used for managing conversations and users of your Bo
 
 ## ✨ EXTRA INFO
 
-* 🤖 In order to send messages as the bot, the bot must have sent an automated message before (from Botpress Studio)
-* 🌐 You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
+-   🤖 In order to send messages as the bot, the bot must have sent an automated message before (from Botpress Studio)
+-   🌐 You can use this project on your localhost only (it works perfectly), or you could host it for free on a platform like Vercel/Netlify, in which case you would need to restrict access with native authentication from the platform (easier), or using JWT/Cookies.
 
 ## 👀 How it looks like
+
 ![image](https://github.com/devguilhermy/botpress-inbox/assets/55157846/7978adfe-ad28-41be-8573-3930023e9607)
 
 ## ✅ To do
 
+-   [ ] Export single and multiple conversations
+-   [ ] Select multiple conversations to delete
 -   [ ] Create conversation
 -   [ ] Sort conversations by last message
 -   [ ] Show user name in the conversation list
 -   [ ] Delete user
--   [ ] Better styling
 -   [ ] Responsive style for mobile
 -   [ ] Authentication
+-   [x] Better styling
 -   [x] Load conversations and messages on scroll
 -   [x] Get the bot id as user automatically
--	  [x] Prompt the user for token and ids instead of using .env
+-   [x] Prompt the user for token and ids instead of using .env
 
 ## ⚙️ Libraries
 
@@ -70,4 +73,3 @@ This project is licensed under the MIT License. You are free to use, modify, and
 ## ⚠️ Disclaimer
 
 This project is an independent effort and is not affiliated with Botpress in any way. It utilizes the public API provided by the platform to list and manage conversations. Any misuse of this application is solely the responsibility of the user. The creators and contributors of this project disclaim any liability for any damages or issues arising from the use or misuse of this project.
-

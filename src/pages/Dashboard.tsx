@@ -2,6 +2,7 @@ import toast from 'react-hot-toast';
 import { Conversation } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
+import { Disclaimer } from '../components/interface/Disclaimer';
 import { Header } from '../components/interface/Header';
 import { LoadingAnimation } from '../components/interface/Loading';
 import { useBotpressClient } from '../hooks/botpressClient';
@@ -11,7 +12,6 @@ import {
 	getStoredCredentials,
 	storeCredentials,
 } from '../services/storage';
-
 
 export const Dashboard = () => {
 	const [conversationsState, setConversationsState] = useState<{
@@ -282,67 +282,76 @@ export const Dashboard = () => {
 					)}
 				</div>
 			</div>
+			<div className="m-2">
+				<Disclaimer />
+			</div>
 		</div>
 	) : (
 		<div className="flex flex-col h-screen">
-			<form
-				onSubmit={handleSubmitCredentials}
-				className="border-2 p-10 rounded-md shadow-sm flex flex-col gap-3 max-w-xl w-full mx-auto my-auto"
-			>
-				<div className="bg-zinc-100 px-5 py-3 mb-10 flex flex-col items-center gap-1 rounded-md mx-auto">
-					<img
-						src="https://avatars.githubusercontent.com/u/23510677?s=200&v=4"
-						alt="Botpress logo"
-						className="h-16 w-16 rounded-full"
-					/>
-					<span className="text-lg font-bold">Botpress Inbox</span>
-					<span>See your conversations</span>
-				</div>
-
-				<label htmlFor="" className="flex flex-col gap-1">
-					<span className="text-lg font-medium">
-						Bot Dashboard URL
-					</span>
-					<input
-						type="text"
-						className="px-3 py-2 rounded-md border-2 bg-white"
-						value={userBotpressURL}
-						onChange={(event) => {
-							setUserBotpressURL(event.target.value);
-						}}
-					/>
-					<span className="text-sm italic text-gray-600">
-						Go to app.botpress.cloud, open your bot and copy the
-						link
-					</span>
-				</label>
-
-				<label htmlFor="" className="flex flex-col gap-1">
-					<span className="text-lg font-medium">
-						Personal Access Token
-					</span>
-					<input
-						type="password"
-						className="px-3 py-2 rounded-md border-2 bg-white"
-						value={userBotpressToken}
-						onChange={(event) => {
-							setUserBotpressToken(event.target.value);
-						}}
-					/>
-					<span className="text-sm italic text-gray-600">
-						You can find this by clicking your avatar in the
-						dashboard
-					</span>
-				</label>
-
-				<button
-					className="w-full p-3 rounded-md bg-blue-500 mx-auto"
-					type="button"
-					onClick={() => handleSubmitCredentials()}
+			<div className="flex flex-col gap-5 w-full max-w-xl mx-auto my-auto">
+				<form
+					onSubmit={handleSubmitCredentials}
+					className="border-2 p-10 rounded-md shadow-sm flex flex-col gap-3"
 				>
-					<span className="text-xl text-white font-medium">Save</span>
-				</button>
-			</form>
+					<div className="bg-zinc-100 px-5 py-3 mb-10 flex flex-col items-center gap-1 rounded-md mx-auto">
+						{/* <img
+							src="https://avatars.githubusercontent.com/u/23510677?s=200&v=4"
+							alt="Botpress logo"
+							className="h-16 w-16 rounded-full"
+						/> */}
+						<span className="text-2xl font-bold">
+							Botpress Inbox
+						</span>
+					</div>
+
+					<label htmlFor="" className="flex flex-col gap-1">
+						<span className="text-lg font-medium">
+							Bot Dashboard URL
+						</span>
+						<input
+							type="text"
+							className="px-3 py-2 rounded-md border-2 bg-white"
+							value={userBotpressURL}
+							onChange={(event) => {
+								setUserBotpressURL(event.target.value);
+							}}
+						/>
+						<span className="text-sm italic text-gray-600">
+							Go to app.botpress.cloud, open your bot and copy the
+							link
+						</span>
+					</label>
+
+					<label htmlFor="" className="flex flex-col gap-1">
+						<span className="text-lg font-medium">
+							Personal Access Token
+						</span>
+						<input
+							type="password"
+							className="px-3 py-2 rounded-md border-2 bg-white"
+							value={userBotpressToken}
+							onChange={(event) => {
+								setUserBotpressToken(event.target.value);
+							}}
+						/>
+						<span className="text-sm italic text-gray-600">
+							You can find this by clicking your avatar in the
+							dashboard. It will be saved only on your computer!
+						</span>
+					</label>
+
+					<button
+						className="w-full p-3 rounded-md bg-blue-500 mx-auto"
+						type="button"
+						onClick={() => handleSubmitCredentials()}
+					>
+						<span className="text-xl text-white font-medium">
+							Save
+						</span>
+					</button>
+				</form>
+				<Disclaimer full />
+			</div>
 		</div>
 	);
 };
