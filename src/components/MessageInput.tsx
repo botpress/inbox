@@ -3,7 +3,6 @@ import { CreateMessageBody, Message } from '@botpress/client/dist/gen';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useState } from 'react';
 
-
 interface MessageInputProps {
 	conversationId: string;
 	addMessageToList: (message: Message) => void;
@@ -45,7 +44,7 @@ export const MessageInput = ({
 				handleScrollToBottom();
 			}
 		} catch (error: any) {
-			console.log(error.response.data);
+			console.log(JSON.stringify(error));
 
 			toast.error("Couldn't send message");
 		}

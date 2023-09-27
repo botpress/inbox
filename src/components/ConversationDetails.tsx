@@ -1,3 +1,4 @@
+import pRetry, { AbortError } from 'p-retry';
 import toast from 'react-hot-toast';
 import { Conversation, Message, User } from '@botpress/client';
 import { ConversationInfo } from './ConversationInfo';
@@ -8,16 +9,20 @@ import { MessageList } from './MessageList';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useRef, useState } from 'react';
 
-
 interface ConversationDetailsProps {
 	conversation: Conversation;
 	onDeleteConversation: (conversationId: string) => void;
+	messagesInfo?: {
+		list: Message[];
+		nextToken?: string;
+	};
 	className?: string;
 }
 
 export const ConversationDetails = ({
 	conversation,
 	onDeleteConversation,
+	messagesInfo,
 	className,
 }: ConversationDetailsProps) => {
 	const [messages, setMessages] = useState<Message[]>([]);
@@ -60,7 +65,7 @@ export const ConversationDetails = ({
 
 			setNextMessagesToken(getMessages.meta.nextToken || undefined);
 		} catch (error: any) {
-			console.log(error.response?.data || error);
+			console.log(JSON.stringify(error));
 
 			toast.error("Couldn't load older messages");
 		}
@@ -86,7 +91,7 @@ export const ConversationDetails = ({
 					onDeleteConversation(conversationId);
 				}
 			} catch (error: any) {
-				console.log(error.response.data);
+				console.log(JSON.stringify(error));
 
 				toast.error("Couldn't delete this conversation");
 			}
@@ -102,20 +107,44 @@ export const ConversationDetails = ({
 		}
 
 		(async () => {
-			setIsLoadingMessages(true);
+			setIsLoadingMessages(false);
 
-			try {
-				const getMessages = await botpressClient.listMessages({
-					conversationId: conversation.id,
-				});
+			const run = async () => {
+				try {
+					let messageList: Message[] = [];
+					let token: string | undefined;
 
-				setMessages(getMessages.messages);
-				setNextMessagesToken(getMessages.meta.nextToken || undefined);
-			} catch (error: any) {
-				console.log(error.response.data || error.message || error);
+					// if the conversation already has the messages data, use it
+					if (messagesInfo?.list?.length) {
+						messageList = messagesInfo?.list;
+						token = messagesInfo?.nextToken;
+					} else {
+						// otherwise, get the messages from the botpress api
+						const getMessages = await botpressClient.listMessages({
+							conversationId: conversation.id,
+						});
 
-				toast.error("Couldn't load messages");
-			}
+						messageList = getMessages.messages;
+						token = getMessages.meta.nextToken;
+					}
+
+					setMessages(messageList);
+					setNextMessagesToken(token);
+				} catch (error: any) {
+					console.log(JSON.stringify(error));
+
+					toast.error("Couldn't load messages");
+				}
+			};
+
+			await pRetry(run, {
+				onFailedAttempt: (error) => {
+					if (error instanceof AbortError) {
+						console.log('Aborted');
+					}
+				},
+				retries: 5,
+			});
 
 			setIsLoadingMessages(false);
 		})();
@@ -163,20 +192,15 @@ export const ConversationDetails = ({
 								setUsers((prevUsers) => {
 									return [...prevUsers, showUserRequest.user];
 								});
-							} else {
-								throw new Error('Could not get user');
 							}
 						} catch (error: any) {
-							console.log(error.response?.data || error);
+							console.log("Couldn't load user details");
 
-							toast.error(
-								`Couldn't load the user ${index} info `
-							);
-							toast.error(String(error));
+							console.log(JSON.stringify(error));
 						}
 					});
 				} catch (error) {
-					console.log(error);
+					console.log(JSON.stringify(error));
 
 					toast.error("Couldn't load users' details");
 				}
@@ -194,7 +218,7 @@ export const ConversationDetails = ({
 						Loading messages...
 					</div>
 				) : (
-					<div className="flex flex-col h-full p-5">
+					<div className="flex flex-col h-full p-4">
 						<div className="overflow-auto h-full">
 							<MessageList
 								messages={messages}

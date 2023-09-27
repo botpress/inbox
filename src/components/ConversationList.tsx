@@ -1,11 +1,11 @@
 import InfiniteScroll from 'react-infinite-scroller';
-import { Conversation } from '@botpress/client';
 import { ConversationItem } from './ConversationItem';
+import { ConversationWithMessages } from '../pages/Dashboard';
 import { LoadingAnimation } from './interface/Loading';
 
 interface ConversationListProps {
-	conversations: Conversation[];
-	onSelectConversation: (conversation: Conversation) => void;
+	conversations: ConversationWithMessages[];
+	onSelectConversation: (conversation: ConversationWithMessages) => void;
 	loadOlderConversations: () => void;
 	nextConversationsToken?: string;
 	selectedConversationId?: string;

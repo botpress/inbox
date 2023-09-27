@@ -4,7 +4,6 @@ import { Message } from '@botpress/client/dist/gen';
 import { MessageItem } from './MessageItem';
 import { useEffect, useState } from 'react';
 
-
 interface MessageListProps {
 	messages: Message[];
 	loadOlderMessages: () => void;
@@ -45,6 +44,10 @@ export const MessageList = ({
 			}
 			isReverse={true}
 			useWindow={false}
+			className="pr-2"
+			// onLoadedData={() => {
+			// 	handleScrollToBottom();
+			// }}
 		>
 			<div className="flex-grow flex flex-col gap-1 pr-2">
 				{isDefinedAndHasItems(messages) ? (
@@ -58,7 +61,7 @@ export const MessageList = ({
 							.map((message, index, list) => (
 								<MessageItem
 									message={message}
-									key={message.id}
+									key={index}
 									className={
 										list[index - 1]?.direction !==
 										message.direction

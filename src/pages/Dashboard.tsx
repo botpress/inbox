@@ -1,53 +1,49 @@
+import pRetry, { AbortError } from 'p-retry';
 import toast from 'react-hot-toast';
-import { Conversation } from '@botpress/client';
+import { Conversation, Message } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
-import { Disclaimer } from '../components/interface/Disclaimer';
 import { Header } from '../components/interface/Header';
+import { listConversations } from '../hooks/clientFunctions';
 import { LoadingAnimation } from '../components/interface/Loading';
+import { LoginPage } from '../components/LoginPage';
 import { useBotpressClient } from '../hooks/botpressClient';
 import { useEffect, useState } from 'react';
 import {
-	clearCredentials,
+	clearStoredCredentials,
 	getStoredCredentials,
-	storeCredentials,
 } from '../services/storage';
 
-export const Dashboard = () => {
-	const [conversationsState, setConversationsState] = useState<{
-		isLoading: boolean;
-		bot?: {
-			id?: string;
-			name?: string;
-		};
-	}>({
-		isLoading: true,
-	});
-	const [selectedConversation, setSelectedConversation] =
-		useState<Conversation>();
+export interface ConversationWithMessages extends Conversation {
+	messages: Message[];
+	nextMessagesToken?: string;
+}
 
-	const [conversations, setConversations] = useState<Conversation[]>([]);
+export const Dashboard = () => {
+	const [isLoadingConversations, setIsLoadingConversations] =
+		useState<boolean>(true);
+
+	const [botInfo, setBotInfo] = useState<{
+		id?: string;
+		name?: string;
+	}>({});
+	const [selectedConversation, setSelectedConversation] =
+		useState<ConversationWithMessages>();
+
+	const [conversationList, setConversationList] = useState<
+		ConversationWithMessages[]
+	>([]);
 	const [nextConversationsToken, setNextConversationsToken] =
 		useState<string>();
 
 	const { botpressClient, createClient, deleteClient } = useBotpressClient();
 
-	const [userBotpressToken, setUserBotpressToken] = useState<string>('');
-	const [userBotpressURL, setUserBotpressURL] = useState<string>('');
-
 	function clearsCredentialsAndClient() {
-		setUserBotpressToken('');
-		setUserBotpressURL('');
-
 		deleteClient();
 
-		clearCredentials();
+		clearStoredCredentials();
+		// window.location.reload();
 	}
-
-	const logout = () => {
-		clearsCredentialsAndClient();
-		window.location.reload();
-	};
 
 	useEffect(() => {
 		if (!botpressClient) {
@@ -62,13 +58,10 @@ export const Dashboard = () => {
 						credentials.botId
 					);
 
-					setConversationsState((prev) => ({
-						...prev,
-						bot: {
-							id: credentials.botId,
-							name: undefined,
-						},
-					}));
+					setBotInfo({
+						id: credentials.botId,
+						name: 'Loading',
+					});
 				}
 			} catch (error: any) {
 				toast("Couldn't start the app");
@@ -78,175 +71,137 @@ export const Dashboard = () => {
 		} else {
 			// if there is a client, loads the conversations
 			(async () => {
-				try {
-					if (conversationsState.bot?.id) {
-						const getBot = await botpressClient.getBot({
-							id: conversationsState.bot!.id!,
+				setIsLoadingConversations(true);
+
+				const tryLoadingConversations = async () => {
+					try {
+						const getConversations = await listConversations({
+							client: botpressClient,
+							withFirstMessages: false,
+							hideEmpty: true,
 						});
 
-						setConversationsState((prev) => ({
-							...prev,
-							bot: {
-								...prev.bot,
-								name: getBot.bot.name,
-							},
-						}));
-					}
-				} catch (error) {}
+						setConversationList(
+							getConversations.conversations as ConversationWithMessages[]
+						);
 
-				setConversationsState((prev) => ({
-					...prev,
-					isLoading: true,
-				}));
+						setNextConversationsToken(getConversations.nextToken);
+					} catch (error: any) {
+						console.log(
+							'ERROR ON GETTING CONVERSATIONS : ',
+							JSON.stringify(error)
+						);
+
+						if (error.code === 429) {
+							toast(
+								'You have reached the limit of requests to the Botpress API... Please try again later'
+							);
+						}
+
+						toast.error("Couldn't load older conversations");
+					}
+				};
+
+				await pRetry(tryLoadingConversations, {
+					onFailedAttempt: (error) => {
+						if (error instanceof AbortError) {
+							console.log('Aborted');
+						}
+					},
+					retries: 5,
+				});
+
+				setIsLoadingConversations(false);
 
 				try {
-					const allConversations: Conversation[] = [];
+					// tries to get the bot name
+					if (botInfo.id) {
+						const getBot = await botpressClient.getBot({
+							id: botInfo.id,
+						});
 
-					const listConversations =
-						await botpressClient.listConversations({});
+						setBotInfo((prev) => ({
+							...prev,
+							name: getBot.bot.name,
+						}));
+					}
+				} catch (error) {
+					console.log(JSON.stringify(error));
 
-					listConversations.conversations.forEach(
-						async (currentConversation) => {
-							// let messages: Message[] = [];
-							// let nextTokenMessages: string | undefined;
-
-							// let users: User[] = [];
-							// let nextTokenUsers: string | undefined;
-
-							// do {
-							// 	const listMessages =
-							// 		await botpressClient.listMessages({
-							// 			conversationId: conversation.id,
-							// 		});
-
-							// 	messages.push(...listMessages.messages);
-							// 	nextTokenMessages = listMessages.meta.nextToken;
-							// } while (nextTokenMessages);
-
-							// do {
-							// 	const listUsers =
-							// 		await botpressClient.listUsers({
-							// 			conversationId: conversation.id,
-							// 		});
-
-							// 	users.push(...listUsers.users);
-							// 	nextTokenUsers = listUsers.meta.nextToken;
-							// } while (nextTokenUsers);
-
-							allConversations.push(currentConversation);
-						}
-					);
-
-					setNextConversationsToken(
-						listConversations.meta.nextToken || undefined
-					);
-
-					setConversations((previousConversations) => {
-						return [...previousConversations, ...allConversations];
-					});
-				} catch (error: any) {
-					console.log(error.response?.data || error);
-
-					toast.error("Couldn't load older conversations");
-
-					clearsCredentialsAndClient();
+					toast.error("Couldn't load bot info");
 				}
-
-				setConversationsState((prev) => ({
-					...prev,
-					isLoading: false,
-				}));
 			})();
 		}
 	}, [botpressClient]);
 
-	function loadOlderConversations() {
+	async function loadOlderConversations() {
 		if (!botpressClient) {
 			return;
 		}
 
-		(async () => {
+		const run = async () => {
 			try {
-				const listConversations =
-					await botpressClient.listConversations({
-						nextToken: nextConversationsToken,
-					});
+				const getConversations = await listConversations({
+					client: botpressClient,
+					withFirstMessages: true,
+					hideEmpty: true,
+					nextToken: nextConversationsToken,
+				});
 
-				setNextConversationsToken(
-					listConversations.meta.nextToken || undefined
-				);
-
-				setConversations((previousConversations) => {
+				setConversationList((previousConversations) => {
 					return [
 						...previousConversations,
-						...listConversations.conversations,
+						...(getConversations.conversations as ConversationWithMessages[]),
 					];
 				});
+
+				setNextConversationsToken(getConversations.nextToken);
 			} catch (error: any) {
-				console.log(error.response?.data || error.message || error);
+				console.log(JSON.stringify(error));
+
+				if (error.code === 429) {
+					toast(
+						'You have reached the limit of requests to the Botpress API... Please try again later'
+					);
+				}
 
 				toast.error("Couldn't load older conversations");
-
-				clearsCredentialsAndClient();
 			}
-		})();
-	}
+		};
 
-	function handleSubmitCredentials() {
-		if (!userBotpressToken || !userBotpressURL) {
-			toast.error('Please inform all the credentials');
-			return;
-		}
-
-		try {
-			const token = userBotpressToken;
-
-			const splittedURL = userBotpressURL.split('/');
-			const workspaceId = splittedURL[4];
-			const botId = splittedURL[6];
-
-			if (!token || !workspaceId || !botId) {
-				throw new Error();
-			}
-
-			const bpClient = createClient(token, workspaceId, botId);
-
-			if (!bpClient) {
-				throw new Error();
-			}
-
-			// saves the encrypted credentials to storage
-			storeCredentials({ token, workspaceId, botId });
-		} catch (error) {
-			toast.error('You have informed invalid credentials');
-
-			clearsCredentialsAndClient();
-		}
+		await pRetry(run, {
+			onFailedAttempt: (error) => {
+				if (error instanceof AbortError) {
+					console.log('Aborted');
+				}
+			},
+			retries: 5,
+		});
 	}
 
 	return botpressClient ? (
 		<div className="flex flex-col h-screen overflow-hidden bg-zinc-100 text-gray-800">
 			{/* HEADER */}
-			<Header handleLogout={logout} className="flex-shrink-0 h-14" />
+			<Header
+				handleLogout={clearsCredentialsAndClient}
+				botName={botInfo.name}
+				className="flex-shrink-0 h-14"
+			/>
 			{/* CONVERSATIONS */}
 			<div className="mx-2 mb-2 gap-2 flex overflow-hidden h-full">
 				<div className="flex flex-col gap-2 w-1/4">
-					<div className="px-3 py-2 text-lg text-white text-center font-medium rounded-md bg-zinc-800">
-						🤖 {conversationsState.bot?.name || 'Unnamed bot'}
-					</div>
-
 					{/* CONVERSATION LIST */}
 					<aside className="w-full flex-col flex flex-1 rounded-md border border-zinc-200 overflow-auto">
-						{conversationsState.isLoading ? (
+						{isLoadingConversations ? (
 							<div className="self-center bg-zinc-200 p-6 text-lg font-medium rounded-md my-auto flex flex-col items-center gap-5">
 								<LoadingAnimation label="Loading messages..." />
 								Loading conversations...
 							</div>
 						) : (
 							<ConversationList
-								conversations={conversations}
+								conversations={conversationList}
 								onSelectConversation={(
-									conversation: Conversation
+									conversation: ConversationWithMessages
 								) => setSelectedConversation(conversation)}
 								selectedConversationId={
 									selectedConversation?.id
@@ -264,11 +219,16 @@ export const Dashboard = () => {
 					{selectedConversation ? (
 						<ConversationDetails
 							conversation={selectedConversation}
+							messagesInfo={{
+								list: selectedConversation.messages,
+								nextToken:
+									selectedConversation.nextMessagesToken,
+							}}
 							className="w-full gap-1"
 							onDeleteConversation={(conversationId: string) => {
 								setSelectedConversation(undefined);
-								setConversations(
-									conversations.filter(
+								setConversationList((prev) =>
+									prev.filter(
 										(conversation) =>
 											conversation.id !== conversationId
 									)
@@ -282,66 +242,11 @@ export const Dashboard = () => {
 					)}
 				</div>
 			</div>
-			<div className="m-2">
+			{/* <div className="m-2">
 				<Disclaimer />
-			</div>
+			</div> */}
 		</div>
 	) : (
-		<div className="flex flex-col h-screen">
-			<div className="flex flex-col gap-5 w-full max-w-xl mx-auto my-auto">
-				<form
-					onSubmit={handleSubmitCredentials}
-					className="border-2 p-10 rounded-md shadow-sm flex flex-col gap-3"
-				>
-					<Disclaimer full />
-
-					<label htmlFor="" className="flex flex-col gap-1">
-						<span className="text-lg font-medium">
-							Bot Dashboard URL
-						</span>
-						<input
-							type="text"
-							className="px-3 py-2 rounded-md border-2 bg-white"
-							value={userBotpressURL}
-							onChange={(event) => {
-								setUserBotpressURL(event.target.value);
-							}}
-						/>
-						<span className="text-sm italic text-gray-600">
-							Go to app.botpress.cloud, open your bot and copy the
-							link
-						</span>
-					</label>
-
-					<label htmlFor="" className="flex flex-col gap-1">
-						<span className="text-lg font-medium">
-							Personal Access Token
-						</span>
-						<input
-							type="password"
-							className="px-3 py-2 rounded-md border-2 bg-white"
-							value={userBotpressToken}
-							onChange={(event) => {
-								setUserBotpressToken(event.target.value);
-							}}
-						/>
-						<span className="text-sm italic text-gray-600">
-							You can find this by clicking your avatar in the
-							dashboard. It will be saved only on your computer!
-						</span>
-					</label>
-
-					<button
-						className="w-full p-3 rounded-md bg-blue-500 mx-auto"
-						type="button"
-						onClick={() => handleSubmitCredentials()}
-					>
-						<span className="text-xl text-white font-medium">
-							Save
-						</span>
-					</button>
-				</form>
-			</div>
-		</div>
+		<LoginPage clearsCredentialsAndClient={clearsCredentialsAndClient} />
 	);
 };

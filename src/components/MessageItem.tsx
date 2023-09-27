@@ -68,6 +68,13 @@ export const MessageItem = ({ message, className }: MessageItemProps) => {
 					</span>
 				)}
 			</div>
+			{/* <ReactMessageRenderer
+				content={{
+					type: 'text',
+					text: message.payload.text,
+				}}
+				config={defaultMessageConfig}
+			/> */}
 			<span className="text-sm text-gray-400">
 				{new Date(message.createdAt).toLocaleString()}
 			</span>

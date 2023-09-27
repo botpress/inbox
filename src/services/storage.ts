@@ -80,7 +80,7 @@ export function storeCredentials(
 	}
 }
 
-export function clearCredentials(itemName?: string): void {
+export function clearStoredCredentials(itemName?: string): void {
 	try {
 		localStorage.removeItem(itemName ? itemName : 'bp-inbox-credentials');
 	} catch (error: any) {

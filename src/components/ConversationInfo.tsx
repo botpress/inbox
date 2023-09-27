@@ -2,7 +2,6 @@ import { Conversation, User } from '@botpress/client';
 import { formatRelative } from 'date-fns';
 import { UserItem } from './UserItem';
 
-
 interface ConversationInfoProps {
 	conversation: Conversation;
 	users: User[];
@@ -34,13 +33,14 @@ export const ConversationInfo = ({
 								// to have the bot at the bottom always
 								a.id === botpressBotIdAsAUser ? 1 : -1
 							)
-							.map((user) => {
+							.map((user, index) => {
 								return (
 									<UserItem
 										user={user}
 										botpressBotIdAsAUser={
 											botpressBotIdAsAUser
 										}
+										key={index}
 									/>
 								);
 							})}
