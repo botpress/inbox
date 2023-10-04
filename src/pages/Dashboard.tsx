@@ -1,10 +1,10 @@
-import pRetry, { AbortError } from 'p-retry';
 import toast from 'react-hot-toast';
+import { AbortError } from 'p-retry';
 import { Conversation, Message } from '@botpress/client';
 import { ConversationDetails } from '../components/ConversationDetails';
 import { ConversationList } from '../components/ConversationList';
 import { Header } from '../components/interface/Header';
-import { listConversations } from '../hooks/clientFunctions';
+import { listConversationsWithMessages } from '../hooks/clientFunctions';
 import { LoadingAnimation } from '../components/interface/Loading';
 import { LoginPage } from '../components/LoginPage';
 import { useBotpressClient } from '../hooks/botpressClient';
@@ -69,49 +69,65 @@ export const Dashboard = () => {
 				toast.error(error.message || error);
 			}
 		} else {
+			// if there are conversations already, returns
+			if (conversationList.length > 0) {
+				console.log("There's already conversations loaded");
+				return;
+			} else {
+				console.log("There's no conversations loaded");
+			}
+
 			// if there is a client, loads the conversations
 			(async () => {
-				setIsLoadingConversations(true);
+				try {
+					setIsLoadingConversations(true);
 
-				const tryLoadingConversations = async () => {
-					try {
-						const getConversations = await listConversations({
-							client: botpressClient,
-							withFirstMessages: false,
-							hideEmpty: true,
-						});
+					console.log('LOADING CONVERSATIONS');
 
-						setConversationList(
-							getConversations.conversations as ConversationWithMessages[]
+					const getConversations =
+						await listConversationsWithMessages(
+							botpressClient,
+							undefined,
+							true
 						);
 
-						setNextConversationsToken(getConversations.nextToken);
-					} catch (error: any) {
-						console.log(
-							'ERROR ON GETTING CONVERSATIONS : ',
-							JSON.stringify(error)
+					setConversationList(
+						getConversations.conversations as ConversationWithMessages[]
+					);
+
+					setNextConversationsToken(
+						getConversations.nextConversationsToken
+					);
+				} catch (error: any) {
+					console.log(
+						'ERROR ON GETTING CONVERSATIONS : ',
+						JSON.stringify(error)
+					);
+
+					if (error.code === 429) {
+						toast(
+							'You have reached the limit of requests to the Botpress API... Please try again later'
 						);
-
-						if (error.code === 429) {
-							toast(
-								'You have reached the limit of requests to the Botpress API... Please try again later'
-							);
-						}
-
-						toast.error("Couldn't load older conversations");
 					}
-				};
 
-				await pRetry(tryLoadingConversations, {
-					onFailedAttempt: (error) => {
-						if (error instanceof AbortError) {
-							console.log('Aborted');
-						}
-					},
-					retries: 5,
-				});
+					toast.error("Couldn't load older conversations");
+				} finally {
+					setIsLoadingConversations(false);
+				}
 
-				setIsLoadingConversations(false);
+				// const retriable = await pRetry( (func) => {
+				// 	try {
+				// 		func
+				// 	} catch (error) {
+				// 		if (error.code !== 429)
+				// 		{
+				// 			throw new AbortError
+				// 		}
+				// 		throw error
+				// 	}
+				// },{onFailedAttempt: (error) => {
+				// 	throw error
+				// },retries:5})
 
 				try {
 					// tries to get the bot name
@@ -139,44 +155,35 @@ export const Dashboard = () => {
 			return;
 		}
 
-		const run = async () => {
-			try {
-				const getConversations = await listConversations({
-					client: botpressClient,
-					withFirstMessages: true,
-					hideEmpty: true,
-					nextToken: nextConversationsToken,
-				});
+		try {
+			console.log('LOADING OLDER CONVERSATIONS');
+			const getConversations = await listConversationsWithMessages(
+				botpressClient,
+				nextConversationsToken,
+				true
+			);
 
-				setConversationList((previousConversations) => {
-					return [
-						...previousConversations,
-						...(getConversations.conversations as ConversationWithMessages[]),
-					];
-				});
+			setConversationList((previousConversations) => {
+				return [
+					...previousConversations,
+					...(getConversations.conversations as ConversationWithMessages[]),
+				];
+			});
 
-				setNextConversationsToken(getConversations.nextToken);
-			} catch (error: any) {
-				console.log(JSON.stringify(error));
+			setNextConversationsToken(getConversations.nextConversationsToken);
+		} catch (error: any) {
+			console.log(JSON.stringify(error));
 
-				if (error.code === 429) {
-					toast(
-						'You have reached the limit of requests to the Botpress API... Please try again later'
-					);
-				}
+			if (error.code === 429) {
+				toast(
+					'You have reached the limit of requests to the Botpress API... Please try again later'
+				);
 
-				toast.error("Couldn't load older conversations");
+				throw new AbortError('API limit reached');
 			}
-		};
 
-		await pRetry(run, {
-			onFailedAttempt: (error) => {
-				if (error instanceof AbortError) {
-					console.log('Aborted');
-				}
-			},
-			retries: 5,
-		});
+			toast.error("Couldn't load older conversations");
+		}
 	}
 
 	return botpressClient ? (
@@ -192,24 +199,24 @@ export const Dashboard = () => {
 				<div className="flex flex-col gap-2 w-1/4">
 					{/* CONVERSATION LIST */}
 					<aside className="w-full flex-col flex flex-1 rounded-md border border-zinc-200 overflow-auto">
-						{isLoadingConversations ? (
+						<ConversationList
+							conversations={conversationList}
+							onSelectConversation={(
+								conversation: ConversationWithMessages
+							) => setSelectedConversation(conversation)}
+							selectedConversationId={selectedConversation?.id}
+							loadOlderConversations={loadOlderConversations}
+							hasMoreConversations={
+								nextConversationsToken ? true : false
+							}
+							className="bg-white"
+						/>
+
+						{isLoadingConversations && (
 							<div className="self-center bg-zinc-200 p-6 text-lg font-medium rounded-md my-auto flex flex-col items-center gap-5">
 								<LoadingAnimation label="Loading messages..." />
 								Loading conversations...
 							</div>
-						) : (
-							<ConversationList
-								conversations={conversationList}
-								onSelectConversation={(
-									conversation: ConversationWithMessages
-								) => setSelectedConversation(conversation)}
-								selectedConversationId={
-									selectedConversation?.id
-								}
-								loadOlderConversations={loadOlderConversations}
-								nextConversationsToken={nextConversationsToken}
-								className="bg-white"
-							/>
 						)}
 					</aside>
 				</div>

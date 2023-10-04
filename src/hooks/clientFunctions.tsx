@@ -1,80 +1,95 @@
 import { Client, Conversation, Message } from '@botpress/client';
-import { ConversationWithMessages } from '../pages/Dashboard';
 
-
-interface ListConversationsProps {
-	client: Client;
-	withFirstMessages?: boolean;
-	hideEmpty?: boolean;
-	nextToken?: string;
+export interface ConversationWithOptionalMessages extends Conversation {
+	messages?: Message[];
+	nextMessagesToken?: string;
 }
 
-export async function listConversations({
-	client,
-	withFirstMessages,
-	hideEmpty,
-	nextToken,
-}: ListConversationsProps): Promise<{
-	conversations: (Conversation | ConversationWithMessages)[];
-	nextToken?: string;
-}> {
-	let conversationList: (Conversation | ConversationWithMessages)[] = [];
-	let nextConversationsToken: string | undefined;
-
-	const listConversationsRequest = await client.listConversations({
-		nextToken,
+export async function listConversations(
+	client: Client,
+	nextConversationsToken?: string
+) {
+	const listRequest = await client.listConversations({
+		nextToken: nextConversationsToken,
 	});
 
-	if (withFirstMessages) {
-		listConversationsRequest.conversations.forEach(
-			async (currentConversation) => {
-				const messagesInfo = await listConversationMessages(
-					client,
-					currentConversation.id
-				);
+	return {
+		conversations: listRequest.conversations,
+		nextConversationsToken: listRequest.meta.nextToken,
+	};
+}
 
-				// if there are no messages in the conversation, it's not added to the list
-				if (hideEmpty && messagesInfo.messages?.length === 0) {
-					return;
-				}
+export async function listConversationsWithMessages(
+	client: Client,
+	nextConversationsToken?: string,
+	hideEmptyConversations?: boolean
+) {
+	// should use the listConversationsWithMessages function
 
-				conversationList.push({
-					...currentConversation,
-					messages: messagesInfo ? messagesInfo.messages : [],
-					nextMessagesToken: messagesInfo
-						? messagesInfo.nextToken
-						: undefined,
-				} as ConversationWithMessages);
-			}
+	const listRequest = await client.listConversations({
+		nextToken: nextConversationsToken,
+	});
+
+	const conversations: ConversationWithOptionalMessages[] =
+		listRequest.conversations;
+
+	if (hideEmptyConversations) {
+		const conversationsWithMessages = await filterOutEmptyConversations(
+			client,
+			conversations
 		);
-	} else {
-		conversationList =
-			listConversationsRequest.conversations as Conversation[];
+
+		return {
+			conversations: conversationsWithMessages,
+			nextConversationsToken: listRequest.meta.nextToken,
+		};
 	}
 
-	nextConversationsToken = listConversationsRequest.meta.nextToken;
-
 	return {
-		conversations: conversationList,
-		nextToken: nextConversationsToken,
+		conversations,
+		nextConversationsToken: listRequest.meta.nextToken,
 	};
 }
 
-export async function listConversationMessages(
+export async function listMessagesByConversationId(
 	client: Client,
 	conversationId: string,
-	nextToken?: string
-): Promise<{
-	messages: Message[];
-	nextToken?: string;
-}> {
-	const listMessagesRequest = await client.listMessages({
+	nextMessagesToken?: string
+) {
+	const listRequest = await client.listMessages({
 		conversationId,
-		nextToken,
+		nextToken: nextMessagesToken,
 	});
 
 	return {
-		messages: listMessagesRequest.messages,
-		nextToken: listMessagesRequest.meta.nextToken,
+		messages: listRequest.messages,
+		nextMessagesToken: listRequest.meta.nextToken,
 	};
+}
+
+export async function getBotInfo(client: Client, botId: string) {
+	const botInfo = await client.getBot({
+		id: botId,
+	});
+
+	return {
+		name: botInfo.bot.name,
+	};
+}
+
+export async function filterOutEmptyConversations(
+	client: Client,
+	conversations: ConversationWithOptionalMessages[]
+) {
+	for (const conversation of conversations) {
+		const { messages, nextMessagesToken } =
+			await listMessagesByConversationId(client, conversation.id);
+
+		conversation.messages = messages;
+		conversation.nextMessagesToken = nextMessagesToken;
+	}
+
+	return conversations.filter(
+		(conversation) => conversation.messages!.length > 0
+	);
 }

@@ -9,7 +9,7 @@ interface MessageListProps {
 	loadOlderMessages: () => void;
 	handleScrollToBottom: () => void;
 	bottomRef: React.RefObject<HTMLDivElement>;
-	nextMessagesToken?: string;
+	hasMoreMessages?: boolean;
 }
 
 export const MessageList = ({
@@ -17,7 +17,7 @@ export const MessageList = ({
 	loadOlderMessages,
 	handleScrollToBottom,
 	bottomRef,
-	nextMessagesToken,
+	hasMoreMessages,
 }: MessageListProps) => {
 	const [messageList, setMessageList] = useState<Message[]>([]);
 
@@ -33,17 +33,17 @@ export const MessageList = ({
 		<InfiniteScroll
 			pageStart={0}
 			loadMore={loadOlderMessages}
-			hasMore={nextMessagesToken ? true : false}
+			hasMore={hasMoreMessages}
 			loader={
 				<div
-					className="loader rounded-md p-2 m-3 border-2 font-medium"
+					className="loader rounded-md p-2 m-3 border-2 font-medium text-center"
 					key={0}
 				>
 					Loading older messages...
 				</div>
 			}
 			isReverse={true}
-			useWindow={false}
+			useWindow={true}
 			className="pr-2"
 			// onLoadedData={() => {
 			// 	handleScrollToBottom();
@@ -52,6 +52,11 @@ export const MessageList = ({
 			<div className="flex-grow flex flex-col gap-1 pr-2">
 				{isDefinedAndHasItems(messages) ? (
 					<>
+						{!hasMoreMessages && (
+							<div className="rounded-md p-2 m-3 border-2 font-medium text-center">
+								Start of the conversation
+							</div>
+						)}
 						{messageList
 							.sort(
 								(a, b) =>

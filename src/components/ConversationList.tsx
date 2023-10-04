@@ -2,12 +2,13 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { ConversationItem } from './ConversationItem';
 import { ConversationWithMessages } from '../pages/Dashboard';
 import { LoadingAnimation } from './interface/Loading';
+import { useRef } from 'react';
 
 interface ConversationListProps {
 	conversations: ConversationWithMessages[];
 	onSelectConversation: (conversation: ConversationWithMessages) => void;
-	loadOlderConversations: () => void;
-	nextConversationsToken?: string;
+	loadOlderConversations: () => Promise<void>;
+	hasMoreConversations?: boolean;
 	selectedConversationId?: string;
 	className?: string;
 }
@@ -16,15 +17,17 @@ export const ConversationList = ({
 	conversations,
 	onSelectConversation,
 	loadOlderConversations,
-	nextConversationsToken,
+	hasMoreConversations,
 	selectedConversationId,
 	className,
 }: ConversationListProps) => {
+	const observerTarget = useRef<HTMLDivElement>(null);
+
 	return (
 		<InfiniteScroll
 			pageStart={0}
 			loadMore={loadOlderConversations}
-			hasMore={nextConversationsToken ? true : false}
+			hasMore={hasMoreConversations}
 			loader={
 				<div
 					className="loader rounded-md px-3 py-2 flex items-center gap-2 m-3 border-2 font-medium"
@@ -82,8 +85,9 @@ export const ConversationList = ({
 							/>
 						</button>
 					))}
+				<div ref={observerTarget} />
 			</div>
-			{!nextConversationsToken && (
+			{!hasMoreConversations && (
 				<div className="rounded-md p-2 m-3 text-center border-2 font-medium">
 					No more conversations
 				</div>

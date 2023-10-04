@@ -33,9 +33,7 @@ export const ConversationDetails = ({
 	const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
 	const { botpressClient } = useBotpressClient();
-	const [botpressBotIdAsAUser, setBotpressBotIdAsAUser] = useState<
-		string | undefined
-	>(undefined);
+	const [botpressBotIdAsAUser, setBotpressBotIdAsAUser] = useState<string>();
 
 	const messageListEndRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +41,7 @@ export const ConversationDetails = ({
 		if (messageListEndRef.current) {
 			messageListEndRef.current.scrollIntoView({ behavior: 'smooth' });
 		} else {
-			console.log('messageListEndRef.current is null');
+			console.debug('messageListEndRef.current is null');
 		}
 	}
 
@@ -107,16 +105,16 @@ export const ConversationDetails = ({
 		}
 
 		(async () => {
-			setIsLoadingMessages(false);
+			setIsLoadingMessages(true);
 
 			const run = async () => {
 				try {
 					let messageList: Message[] = [];
 					let token: string | undefined;
 
-					// if the conversation already has the messages data, use it
+					// if the conversation already has already been given the messages data, use it
 					if (messagesInfo?.list?.length) {
-						messageList = messagesInfo?.list;
+						messageList = messagesInfo.list;
 						token = messagesInfo?.nextToken;
 					} else {
 						// otherwise, get the messages from the botpress api
@@ -134,13 +132,21 @@ export const ConversationDetails = ({
 					console.log(JSON.stringify(error));
 
 					toast.error("Couldn't load messages");
+
+					if (error.code === 429) {
+						toast(
+							'You have reached the limit of requests to the Botpress API... Please try again later'
+						);
+
+						throw new AbortError('API limit reached');
+					}
 				}
 			};
 
 			await pRetry(run, {
 				onFailedAttempt: (error) => {
 					if (error instanceof AbortError) {
-						console.log('Aborted');
+						console.log(error.message);
 					}
 				},
 				retries: 5,
@@ -223,7 +229,9 @@ export const ConversationDetails = ({
 							<MessageList
 								messages={messages}
 								loadOlderMessages={loadOlderMessages}
-								nextMessagesToken={nextMessagesToken}
+								hasMoreMessages={
+									nextMessagesToken ? true : false
+								}
 								handleScrollToBottom={handleScrollToBottom}
 								bottomRef={messageListEndRef}
 							/>
